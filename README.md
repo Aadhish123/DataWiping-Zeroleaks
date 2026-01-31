@@ -3,7 +3,7 @@ CRABEX – Secure Data Wiping & Verification System
 CRABEX is a secure, standards-aware data wiping system designed to permanently erase sensitive data from storage devices and prevent data leakage during device reuse and recycling.
 The project also includes a scope-restricted AI chatbot to explain data wiping concepts and guide users.
 
-📌 Problem Statement
+ Problem Statement
 
 Electronic waste (e-waste) is growing rapidly due to frequent device replacement.
 A major reason devices are discarded instead of reused is the fear of sensitive data leakage.
@@ -16,7 +16,7 @@ Organizations destroy usable devices to avoid risk, increasing e-waste
 
 CRABEX addresses this trust gap by providing verifiable and irreversible data wiping.
 
-🎯 Objectives
+ Objectives
 
 Permanently erase data from storage devices
 
