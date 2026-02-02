@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - CRABEX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1c2023;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Navbar - Dark Enterprise Command Center */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            backdrop-filter: blur(20px);
+            background: #252a2e;
+            border-bottom: 1px solid rgba(0, 230, 216, 0.15);
+            z-index: 1000;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: #00e6d8;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 230, 216, 0.3);
+        }
+
+        .logo-icon i {
+            font-size: 22px;
+            color: #1c2023;
+        }
+
+        .brand-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00e6d8;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #00e6d8;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00e6d8;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* OTP Container */
+        .otp-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .otp-container {
+            background: #252a2e;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 230, 216, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .otp-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .otp-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #00e6d8;
+            margin-bottom: 0.5rem;
+        }
+
+        .otp-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 0 1rem;
+        }
+
+        /* OTP Input Boxes */
+        .otp-input-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            animation: slideInLeft 0.6s ease-out 0.2s backwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .otp-digit {
+            width: 55px;
+            height: 60px;
+            font-size: 1.8rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .otp-digit:focus {
+            outline: none;
+            border-color: #00e6d8;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(0, 230, 216, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* Timer */
+        .timer-container {
+            text-align: center;
+            margin: 1.5rem 0;
+            animation: slideInLeft 0.6s ease-out 0.3s backwards;
+        }
+
+        .timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .timer.warning {
+            color: #f59e0b;
+            animation: shake 0.5s ease;
+        }
+
+        .timer.expired {
+            color: #ef4444;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #00e6d8;
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 1rem;
+            animation: slideInLeft 0.6s ease-out 0.4s backwards;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 230, 216, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Resend Link */
+        .resend-container {
+            text-align: center;
+            margin-top: 1.5rem;
+            animation: slideInLeft 0.6s ease-out 0.5s backwards;
+        }
+
+        .resend-container p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+
+        .resend-link {
+            color: #00e6d8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .resend-link:hover {
+            color: #00e6d8;
+            text-decoration: underline;
+        }
+
+        .resend-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Security Notice */
+        .security-notice {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 230, 216, 0.08);
+            border-left: 3px solid #00e6d8;
+            border-radius: 8px;
+            animation: slideInLeft 0.6s ease-out 0.6s backwards;
+        }
+
+        .security-notice p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .security-notice strong {
+            color: #00e6d8;
+        }
+
+        /* Loading State */
+        .submit-btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1.5rem;
+            }
+
+            .otp-container {
+                padding: 2rem;
+            }
+
+            .otp-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .otp-digit {
+                width: 45px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .orb-1, .orb-2, .orb-3 {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .otp-container {
+                padding: 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .otp-input-group {
+                gap: 0.5rem;
+            }
+
+            .otp-digit {
+                width: 40px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="brand-name">CRABEX</div>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('about') }}">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- OTP Verification -->
+    <div class="otp-wrapper">
+        <div class="otp-container">
+            <div class="otp-header">
+                <h1>Verify Your Identity</h1>
+                <p>Enter the 6-digit verification code sent to your registered phone number</p>
+            </div>
+
+            <form method="post" id="otpForm">
+                <div class="otp-input-group">
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" id="digit1" autocomplete="off" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" id="digit2" autocomplete="off" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" id="digit3" autocomplete="off" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" id="digit4" autocomplete="off" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" id="digit5" autocomplete="off" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" id="digit6" autocomplete="off" required>
+                </div>
+                
+                <!-- Hidden input to store complete OTP -->
+                <input type="hidden" name="otp" id="otp">
+
+                <div class="timer-container">
+                    <div class="timer" id="timer">
+                        ⏱️ Time remaining: <span id="countdown">05:00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="verifyBtn">
+                    Verify & Continue
+                </button>
+            </form>
+
+            <div class="resend-container">
+                <p>Didn't receive the code?</p>
+                <a href="{{ url_for('send_otp') }}" class="resend-link" id="resendLink">Resend OTP</a>
+            </div>
+
+            <div class="security-notice">
+                <p>
+                    🛡️ <strong>Security Notice:</strong> This OTP is valid for 5 minutes and can only be used once. Never share your OTP with anyone.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // OTP Input Management
+        const otpInputs = document.querySelectorAll('.otp-digit');
+        const hiddenOtpInput = document.getElementById('otp');
+        
+        otpInputs.forEach((input, index) => {
+            // Auto-focus next input
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                
+                // Only allow digits
+                if (!/^\d$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Move to next input
+                if (value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                
+                // Update hidden input
+                updateOtpValue();
+            });
+            
+            // Handle backspace
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+            
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').slice(0, 6);
+                
+                if (/^\d{6}$/.test(pastedData)) {
+                    pastedData.split('').forEach((digit, i) => {
+                        if (otpInputs[i]) {
+                            otpInputs[i].value = digit;
+                        }
+                    });
+                    otpInputs[5].focus();
+                    updateOtpValue();
+                }
+            });
+        });
+
+        function updateOtpValue() {
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            hiddenOtpInput.value = otp;
+        }
+
+        // Countdown Timer
+        let timeLeft = 300; // 5 minutes in seconds
+        const countdownElement = document.getElementById('countdown');
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resendLink');
+        
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Warning at 1 minute
+            if (timeLeft === 60) {
+                timerElement.classList.add('warning');
+            }
+            
+            // Expired
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                timerElement.classList.remove('warning');
+                timerElement.classList.add('expired');
+                countdownElement.textContent = 'Expired';
+                
+                // Disable verify button
+                document.getElementById('verifyBtn').disabled = true;
+                
+                // Enable resend
+                resendLink.classList.remove('disabled');
+            }
+        }, 1000);
+
+        // Form submission
+        document.getElementById('otpForm').addEventListener('submit', function(e) {
+            const otp = hiddenOtpInput.value;
+            
+            if (otp.length !== 6) {
+                e.preventDefault();
+                alert('Please enter all 6 digits');
+                return;
+            }
+            
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.classList.add('loading');
+            verifyBtn.textContent = '';
+        });
+
+        // Disable resend initially
+        resendLink.classList.add('disabled');
+        setTimeout(() => {
+            resendLink.classList.remove('disabled');
+        }, 30000); // Enable after 30 seconds
+
+        // Initialize particles
+        window.addEventListener('load', () => {
+            createParticles();
+            // Auto-focus first input
+            otpInputs[0].focus();
+        });
+    </script>
+</body>
+</html>

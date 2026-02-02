@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CRABEX</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="auth-layout">
+        <!-- Left Panel: Visual/Brand -->
+        <div class="auth-visual">
+            <div class="visual-overlay"></div>
+            <img src="{{ url_for('static', filename='home_images/security.jpg') }}" alt="Background" class="visual-bg">
+
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <img src="{{ url_for('static', filename='crabEX.jpg') }}" alt="Logo">
+                    <span>CRABEX</span>
+                </div>
+                <a href="{{ url_for('home') }}" class="back-link">Back to website →</a>
+            </div>
+
+            <div class="visual-content">
+                <h2>Capturing Security,<br>Creating Trust.</h2>
+                <div class="carousel-indicators-mock">
+                    <span class="active"></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Form -->
+        <div class="auth-form-container">
+            <div class="auth-form-wrapper">
+                <div class="auth-header">
+                    <h1>Login to your account</h1>
+                    <p class="auth-subtitle">Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+                </div>
+
+                <!-- Flash Messages -->
+                <div class="alert-container">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <form method="post" id="loginForm" class="modern-form">
+                    <div class="input-group-modern">
+                        <input type="text" name="username" id="username" placeholder=" " required
+                            autocomplete="username">
+                        <label for="username">Username</label>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <input type="password" name="password" id="password" placeholder=" " required
+                            autocomplete="current-password">
+                        <label for="password">Password</label>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="remember" id="remember">
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#">Terms & Conditions</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-auth-primary">
+                        Login
+                    </button>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password Toggle
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function (e) {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+
+        // Form Loading State
+        document.getElementById('loginForm').addEventListener('submit', function () {
+            const btn = this.querySelector('.btn-auth-primary');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            btn.style.opacity = '0.7';
+        });
+
+        // Auto-dismiss alerts
+        document.addEventListener('DOMContentLoaded', () => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 500);
+                }, 3500); // Disappear after 3.5s
+            });
+        });
+
+        // Background Carousel Logic
+        const slides = [
+            {
+                image: "{{ url_for('static', filename='home_images/security.jpg') }}",
+                title: "Capturing Security,<br>Creating Trust."
+            },
+            {
+                image: "{{ url_for('static', filename='home_images/speed.jpg') }}",
+                title: "Speed Beyond<br>Expectations."
+            },
+            {
+                image: "{{ url_for('static', filename='home_images/crossplatform.jpg') }}",
+                title: "Any Device,<br>Anytime."
+            }
+        ];
+
+        let currentSlide = 0;
+        const bgImage = document.querySelector('.visual-bg');
+        const titleElement = document.querySelector('.visual-content h2');
+        const indicators = document.querySelectorAll('.carousel-indicators-mock span');
+
+        function updateSlide() {
+            // Fade out
+            bgImage.style.opacity = '0';
+            titleElement.style.opacity = '0';
+
+            setTimeout(() => {
+                // Update content
+                bgImage.src = slides[currentSlide].image;
+                titleElement.innerHTML = slides[currentSlide].title;
+
+                // Update indicators
+                indicators.forEach((ind, index) => {
+                    ind.classList.toggle('active', index === currentSlide);
+                });
+
+                // Fade in
+                bgImage.style.opacity = '1';
+                titleElement.style.opacity = '1';
+            }, 500); // Wait for fade out
+        }
+
+        // Input Float Label Logic
+        const inputs = document.querySelectorAll('.input-group-modern input');
+
+        function updateInputState(input) {
+            if (input.value && input.value.trim() !== '') {
+                input.classList.add('has-content');
+            } else {
+                input.classList.remove('has-content');
+            }
+        }
+
+        inputs.forEach(input => {
+            // Check on load (for autofill)
+            updateInputState(input);
+
+            // Check on input
+            input.addEventListener('input', () => updateInputState(input));
+
+            // Check on blur
+            input.addEventListener('blur', () => updateInputState(input));
+
+            // Check animation start (autofill detection)
+            input.addEventListener('animationstart', (e) => {
+                if (e.animationName === 'onAutoFillStart') {
+                    input.classList.add('has-content');
+                }
+            });
+        });
+
+        // Initialize transition styles
+        bgImage.style.transition = 'opacity 0.5s ease';
+        titleElement.style.transition = 'opacity 0.5s ease';
+
+        // Auto advance
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            updateSlide();
+        }, 5000);
+
+    </script>
+</body>
+
+</html>

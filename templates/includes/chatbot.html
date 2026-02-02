@@ -1,0 +1,501 @@
+<!-- Chatbot Widget - Peak UI -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<div class="chatbot-widget">
+    <button class="chatbot-button" id="chatbotToggle">
+        <div class="earth-icon-container">
+            <img src="{{ url_for('static', filename='realistic_earth.png') }}" alt="AI Assistant"
+                class="earth-icon-spin">
+            <div class="earth-glow"></div>
+        </div>
+    </button>
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <span class="pulse-dot"></span>
+                <span>Zero Leaks AI v2.0</span>
+            </div>
+            <button class="chatbot-close" id="chatbotClose">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-message">
+                <div class="message-avatar bot-avatar">
+                    <img src="{{ url_for('static', filename='realistic_earth.png') }}" class="mini-earth">
+                </div>
+                <div class="message-content">
+                    Scale established. Connected to Gemini Core. How can I assist with your data security today?
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Initialize query..."
+                autocomplete="off">
+            <button class="chatbot-send" id="chatbotSend">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Chatbot Widget Container */
+    .chatbot-widget {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Peak Chatbot UI Button */
+    .chatbot-button {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: rgba(15, 17, 21, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 230, 216, 0.3);
+        box-shadow: 0 0 30px rgba(0, 230, 216, 0.2);
+        padding: 0;
+        overflow: visible;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+    }
+
+    .chatbot-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 50px rgba(0, 230, 216, 0.4);
+        border-color: #00e6d8;
+    }
+
+    /* Earth Icon */
+    .earth-icon-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .earth-icon-spin {
+        width: 90%;
+        height: 90%;
+        object-fit: cover;
+        border-radius: 50%;
+        animation: spinEarth 20s linear infinite;
+    }
+
+    .earth-glow {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        box-shadow: inset 0 0 20px rgba(0, 230, 216, 0.5);
+        pointer-events: none;
+    }
+
+    @keyframes spinEarth {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Window State Management - Fixed for Reliability */
+    .chatbot-window {
+        position: absolute;
+        bottom: 90px;
+        right: 0;
+        width: 380px;
+        height: 500px;
+        background: rgba(15, 17, 21, 0.95);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(0, 230, 216, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        /* State: Hidden */
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px) scale(0.95);
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    /* State: Active */
+    .chatbot-window.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: all;
+    }
+
+    /* Header */
+    .chatbot-header {
+        background: linear-gradient(90deg, rgba(0, 230, 216, 0.1), transparent);
+        border-bottom: 1px solid rgba(0, 230, 216, 0.1);
+        padding: 1.2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbot-title {
+        color: #00e6d8;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chatbot-close {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: 0.3s;
+    }
+
+    .chatbot-close:hover {
+        color: #fff;
+        transform: rotate(90deg);
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #00ff9d;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #00ff9d;
+        animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+        0% {
+            opacity: 0.5;
+            transform: scale(0.8);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        100% {
+            opacity: 0.5;
+            transform: scale(0.8);
+        }
+    }
+
+    /* Messages */
+    .chatbot-messages {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        scrollbar-width: thin;
+        scrollbar-color: #00e6d8 #1c2023;
+    }
+
+    .chatbot-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chatbot-messages::-webkit-scrollbar-thumb {
+        background: #00e6d8;
+        border-radius: 3px;
+    }
+
+    .chat-message {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        max-width: 85%;
+    }
+
+    .chat-message.user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .mini-earth {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        animation: spinEarth 10s linear infinite;
+    }
+
+    .message-content {
+        padding: 1rem;
+        border-radius: 15px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .chat-message.user .message-content {
+        background: linear-gradient(135deg, #00e6d8, #00b8b0);
+        color: #1c2023;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0, 230, 216, 0.2);
+        border-bottom-right-radius: 4px;
+    }
+
+    .chat-message:not(.user) .message-content {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        border-bottom-left-radius: 4px;
+    }
+
+    /* Input Area */
+    .chatbot-input-area {
+        padding: 1.2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        gap: 0.8rem;
+    }
+
+    .chatbot-input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .chatbot-input:focus {
+        border-color: #00e6d8;
+        box-shadow: 0 0 15px rgba(0, 230, 216, 0.2);
+    }
+
+    .chatbot-send {
+        background: linear-gradient(135deg, #00e6d8, #00b8b0);
+        color: #1c2023;
+        border: none;
+        border-radius: 12px;
+        width: 45px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chatbot-send:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(0, 230, 216, 0.4);
+    }
+
+    .chatbot-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+        display: flex;
+        gap: 5px;
+        padding: 5px 0;
+    }
+
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #00e6d8;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0);
+        }
+
+        40% {
+            transform: scale(1);
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Safe variable injection for template literals
+        const EARTH_ICON_URL = "{{ url_for('static', filename='realistic_earth.png') }}";
+
+        // Toggle Logic
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotWindow = document.getElementById('chatbotWindow');
+        const chatbotClose = document.getElementById('chatbotClose');
+
+        if (chatbotToggle && chatbotWindow && chatbotClose) {
+            chatbotToggle.addEventListener('click', function () {
+                chatbotWindow.classList.add('active');
+            });
+
+            chatbotClose.addEventListener('click', function () {
+                chatbotWindow.classList.remove('active');
+            });
+        }
+
+        // Message Logic
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
+
+        function formatMessage(text) {
+            if (!text) return '';
+
+            // 1. Sanitize HTML
+            let formatted = text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            // 2. Bold (Global)
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // 3. Italic (Global)
+            formatted = formatted.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+            // 4. Links (Global)
+            formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: #00e6d8; text-decoration: underline;">$1</a>');
+
+            // 5. Newlines to <br>
+            formatted = formatted.replace(/\n/g, '<br>');
+
+            // 6. Bullets: Force newlines for every bullet point
+            // This fixes the issue where bullets appear on the same line if \n is missing
+            formatted = formatted.replace(/•/g, '<br>•&nbsp;');
+            formatted = formatted.replace(/- /g, '<br>-&nbsp;');
+
+            // 7. Cleanup
+            // Remove double <br>s if we created them
+            formatted = formatted.replace(/(<br>){2,}/g, '<br>');
+            // Remove leading <br>
+            if (formatted.startsWith('<br>')) formatted = formatted.substring(4);
+
+            return formatted;
+        }
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${isUser ? 'user' : ''}`;
+
+            // Format only if it comes from the bot
+            const displayedContent = isUser ? content : formatMessage(content);
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
+                    ${isUser ? '👤' : `<img src="${EARTH_ICON_URL}" class="mini-earth">`}
+                </div>
+                <div class="message-content">${displayedContent}</div>
+            `;
+
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message typing-message';
+            typingDiv.innerHTML = `
+                <div class="message-avatar bot-avatar"><img src="${EARTH_ICON_URL}" class="mini-earth"></div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatbotMessages.appendChild(typingDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            return typingDiv;
+        }
+
+        async function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            chatbotInput.value = '';
+            chatbotSend.disabled = true;
+
+            const typingIndicator = showTypingIndicator();
+
+            try {
+                // Call the Gemini API backend
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                typingIndicator.remove();
+
+                if (data.response) {
+                    addMessage(data.response);
+                } else {
+                    addMessage("I encountered a temporal anomaly. Please try again.");
+                }
+            } catch (error) {
+                console.error("Chat Error:", error);
+                typingIndicator.remove();
+                addMessage("Connection to Gemini Core failed. Please check your network.");
+            }
+
+            chatbotSend.disabled = false;
+            chatbotInput.focus();
+        }
+
+        if (chatbotSend && chatbotInput) {
+            chatbotSend.addEventListener('click', sendMessage);
+            chatbotInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
+    });
+</script>

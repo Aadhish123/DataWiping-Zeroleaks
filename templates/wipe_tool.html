@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center - Zero Leaks</title>
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+    <style>
+        /* New Mode Switcher Styles (Inline for now) */
+        .mode-switcher {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #718096;
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .mode-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .mode-btn.active {
+            background: rgba(0, 230, 216, 0.15);
+            color: #00e6d8;
+            box-shadow: 0 0 10px rgba(0, 230, 216, 0.1);
+        }
+
+        /* Folder Select Button */
+        .select-folder-btn {
+            width: 100%;
+            background: rgba(0, 230, 216, 0.1);
+            border: 1px solid rgba(0, 230, 216, 0.3);
+            color: #00e6d8;
+            padding: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 600;
+            display: none;
+            /* Hidden by default */
+            transition: all 0.2s;
+        }
+
+        .select-folder-btn:hover {
+            background: rgba(0, 230, 216, 0.2);
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='crabEX.jpg') }}" alt="CRABEX Logo" class="logo">
+                <a href="{{ url_for('home') }}" class="brand">CRABEX</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('wipe_tool') }}" class="active">Wipe Tool</a>
+                <a href="{{ url_for('history') }}">History</a>
+                <a href="{{ url_for('help_page') }}">Help</a>
+                <div class="profile-dropdown">
+                    <div class="profile-trigger">
+                        <img src="https://ui-avatars.com/api/?name={{ session.get('username', 'User') }}&background=00e6d8&color=1c2023&bold=true"
+                            alt="User" class="profile-avatar">
+                        <span class="profile-name">{{ session.get('username', 'User') }}</span>
+                        <span class="profile-arrow">▼</span>
+                    </div>
+                    <div class="profile-menu-content">
+                        <a href="{{ url_for('logout') }}" class="profile-menu-item logout-item"><span>🚪</span>
+                            Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Grid -->
+    <div class="cmd-dashboard">
+
+        <!-- LEFT PANEL: Target Selection -->
+        <div class="cmd-panel">
+            <div class="cmd-header">
+                <div class="cmd-title"><i class="fas fa-crosshairs"></i> Target Sector</div>
+                <div style="font-size:0.7rem; color:#00e6d8;">MOUNTED</div>
+            </div>
+            <div class="cmd-content files-wrapper">
+
+                <!-- Mode Switcher -->
+                <div class="mode-switcher">
+                    <button class="mode-btn active" onclick="setMode('file')"><i class="fas fa-file"></i> File</button>
+                    <button class="mode-btn" onclick="setMode('folder')"><i class="fas fa-folder"></i> Folder</button>
+                    <button class="mode-btn" onclick="setMode('disk')"><i class="fas fa-hdd"></i> Disk</button>
+                </div>
+
+                <!-- Breadcrumb -->
+                <div class="path-bread-crumb" id="current-path-display">root</div>
+
+                <!-- File Tree -->
+                <div class="file-tree" id="file-browser-root">
+                    <div class="file-item" style="justify-content:center; color:#718096; margin-top:2rem;">
+                        <i class="fas fa-circle-notch fa-spin"></i> Initializing System...
+                    </div>
+                </div>
+
+                <!-- Specific Action Button for Folder Mode -->
+                <button id="select-current-folder-btn" class="select-folder-btn" onclick="selectCurrentFolder()">
+                    <i class="fas fa-check-circle"></i> TARGET CURRENT FOLDER
+                </button>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL: Command Core -->
+        <div class="cmd-panel core-panel">
+            <div class="cmd-header">
+                <div class="cmd-title"><i class="fas fa-microchip"></i> Command Core</div>
+                <div class="badge"
+                    style="background:rgba(0,255,0,0.1); color:#00ff00; padding:2px 6px; border-radius:4px; font-size:0.6rem; font-weight:bold;">
+                    ONLINE</div>
+            </div>
+            <div class="cmd-content">
+
+                <h3
+                    style="color:#fff; font-size:0.9rem; margin-bottom:1rem; text-transform:uppercase; letter-spacing:1px;">
+                    1. Select Algorithm</h3>
+                <div class="algo-grid">
+                    <div class="algo-card active" onclick="selectAlgo(this, 'dod')">
+                        <span class="algo-title">DoD 5220.22-M</span>
+                        <span class="algo-desc">3-pass overwrite. Balanced.</span>
+                    </div>
+                    <div class="algo-card" onclick="selectAlgo(this, 'dod_7pass')">
+                        <span class="algo-title">DoD 7-Pass (ECE)</span>
+                        <span class="algo-desc">High security sanitation.</span>
+                    </div>
+                    <div class="algo-card" onclick="selectAlgo(this, 'zeros')">
+                        <span class="algo-title">Zero Fill</span>
+                        <span class="algo-desc">Single pass. Fastest.</span>
+                    </div>
+                    <div class="algo-card" onclick="selectAlgo(this, 'ata_secure_erase')">
+                        <span class="algo-title">ATA Secure Erase</span>
+                        <span class="algo-desc">Hardware-level SSD reset.</span>
+                    </div>
+                </div>
+
+                <div class="arm-section">
+                    <div class="arm-bg-alert"></div>
+                    <div class="arm-content">
+                        <div class="arm-label">
+                            Safety Interlock
+                            <span class="arm-sub">Arm system to enable write access</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="arm-switch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="nuke-btn" class="nuke-btn" disabled>
+                    <i class="fas fa-radiation nuke-icon"></i>
+                    <span>EXECUTE WIPE</span>
+                </button>
+
+                <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:#555;">
+                    Mode: <span style="color:#00e6d8" id="mode-indicator">FILE</span> | User: <span
+                        style="color:#00e6d8">{{ session.get('username') }}</span>
+                </p>
+
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Telemetry -->
+        <div class="cmd-panel">
+            <div class="cmd-header">
+                <div class="cmd-title"><i class="fas fa-terminal"></i> System Telemetry</div>
+                <div style="font-size:0.7rem; color:#f59e0b;">MONITORING</div>
+            </div>
+            <div class="cmd-content">
+                <div class="stats-mini-grid">
+                    <div class="mini-stat">
+                        <span class="mini-label">Session Time</span>
+                        <span class="mini-val" id="session-timer">00:00</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-label">System Load</span>
+                        <span class="mini-val green">NOMINAL</span>
+                    </div>
+                </div>
+
+                <div class="terminal-window">
+                    <div class="scanline"></div>
+                    <div class="term-logs" id="terminal-logs">
+                        <div class="log-entry"><span class="log-time">[INIT]</span> <span class="log-sys">SYSTEM</span>
+                            Connecting to secure server...</div>
+                        <div class="log-entry"><span class="log-time">[AUTH]</span> <span class="log-info">USER</span>
+                            Identity verified.</div>
+                        <div class="log-entry"><span class="log-time">[WAIT]</span> <span class="log-warn">READY</span>
+                            Select Target Mode to begin.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIPE OVERLAY -->
+    <div class="wipe-overlay" id="wipe-overlay">
+        <div class="wipe-progress-circle">
+            <span class="wipe-percentage" id="overlay-percent">0%</span>
+        </div>
+        <h2 style="color:#fff; text-transform:uppercase; letter-spacing:3px; margin-bottom:1rem;">Data Sanitization in
+            Progress</h2>
+        <p style="color:#00e6d8; font-family:monospace;">DO NOT CLOSE THIS WINDOW</p>
+    </div>
+
+    <script>
+        // --- State ---
+        let currentMode = 'file'; // file, folder, disk
+        let currentPath = "";
+        let selectedPath = null;
+        let selectedAlgo = 'dod';
+        let isArmed = false;
+
+        // --- Helpers ---
+        function log(msg, type = 'INFO') {
+            const logs = document.getElementById('terminal-logs');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            let typeClass = 'log-info';
+            if (type === 'WARN') typeClass = 'log-warn';
+            if (type === 'ERR') typeClass = 'log-err';
+            if (type === 'SYS') typeClass = 'log-sys';
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="${typeClass}">${type}</span> ${msg}`;
+            logs.appendChild(entry);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        // --- Mode Switching ---
+        function setMode(mode) {
+            currentMode = mode;
+            selectedPath = null;
+            checkReady();
+
+            // UI Updates
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.mode-btn[onclick="setMode('${mode}')"]`).classList.add('active');
+            document.getElementById('mode-indicator').textContent = mode.toUpperCase();
+            document.getElementById('select-current-folder-btn').style.display = (mode === 'folder') ? 'block' : 'none';
+
+            log(`Switched to ${mode.toUpperCase()} targeting mode.`, 'SYS');
+
+            if (mode === 'disk') {
+                loadDisks();
+                document.getElementById('current-path-display').textContent = "Physical Disks";
+            } else {
+                // Return to file browser
+                loadFiles(currentPath); // keeps last path or root
+            }
+        }
+
+        // --- Data Loading ---
+        async function loadFiles(path) {
+            log(`Scanning: ${path || 'Root'}`, 'INFO');
+            document.getElementById('file-browser-root').innerHTML = '<div class="file-item" style="justify-content:center; color:#718096;"><i class="fas fa-circle-notch fa-spin"></i> Scanning Sector...</div>';
+
+            try {
+                const url = path ? `/browse?path=${encodeURIComponent(path)}` : '/browse';
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Access Denied");
+                const data = await response.json();
+
+                const items = [];
+                // Process Folders
+                if (data.folders) {
+                    data.folders.forEach(name => {
+                        let fullPath = name;
+                        if (data.current_path) {
+                            const sep = data.current_path.includes('/') ? '/' : '\\\\';
+                            if (data.current_path.endsWith(sep)) fullPath = data.current_path + name;
+                            else fullPath = data.current_path + sep + name;
+                        }
+                        items.push({ name: name, type: 'directory', path: fullPath });
+                    });
+                }
+                // Process Files (Only if NOT in Disk mode, but here we are in file/folder mode)
+                // If in folder mode, we might still want to see files but not select them? 
+                // Let's show them for context but make them unselectable if mode==folder?
+                // For simplicity, we show them.
+                if (data.files) {
+                    data.files.forEach(name => {
+                        let fullPath = name;
+                        if (data.current_path) {
+                            const sep = data.current_path.includes('/') ? '/' : '\\\\';
+                            if (data.current_path.endsWith(sep)) fullPath = data.current_path + name;
+                            else fullPath = data.current_path + sep + name;
+                        }
+                        items.push({ name: name, type: 'file', path: fullPath });
+                    });
+                }
+
+                currentPath = data.current_path;
+                document.getElementById('current-path-display').textContent = currentPath || 'Root';
+                renderItems(items, data.current_path, data.parent_path);
+
+            } catch (e) {
+                log(`Scan Error: ${e.message}`, 'ERR');
+                document.getElementById('file-browser-root').innerHTML = '<div class="file-item" style="color:#ef4444;">Error accessing path</div>';
+            }
+        }
+
+        async function loadDisks() {
+            log('Scanning for Physical Drives...', 'SYS');
+            document.getElementById('file-browser-root').innerHTML = '<div class="file-item" style="justify-content:center; color:#718096;"><i class="fas fa-circle-notch fa-spin"></i> Enumerating Hardware...</div>';
+
+            try {
+                const response = await fetch('/browse?type=disk');
+                if (!response.ok) throw new Error("Hardware Access Denied");
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                const items = data.disks.map(d => ({
+                    name: d.name, // Display Name
+                    path: d.path, // Physical Path (e.g. \\.\PhysicalDrive0)
+                    type: 'disk',
+                    serial: d.serial
+                }));
+
+                renderItems(items, null, null);
+                log(`Hardware Scan Complete: ${items.length} drives found.`, 'INFO');
+
+            } catch (e) {
+                log(`Disk Scan Failed: ${e.message}`, 'ERR');
+                document.getElementById('file-browser-root').innerHTML = `<div class="file-item" style="color:#ef4444;">${e.message}</div>`;
+            }
+        }
+
+        function renderItems(items, currentDir, parentDir) {
+            const root = document.getElementById('file-browser-root');
+            root.innerHTML = '';
+
+            // Parent Directory (Only for File/Folder mode)
+            if (currentMode !== 'disk' && currentDir) {
+                const parentDiv = document.createElement('div');
+                parentDiv.className = 'file-item';
+                parentDiv.innerHTML = '<i class="fas fa-level-up-alt file-icon"></i> .. (Parent)';
+                parentDiv.onclick = () => {
+                    if (parentDir !== undefined) loadFiles(parentDir);
+                    else loadFiles(currentDir + '/..');
+                };
+                root.appendChild(parentDiv);
+            }
+
+            if (items.length === 0) {
+                root.innerHTML += '<div class="file-item" style="color:#718096;"><i>Sector Empty</i></div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+
+                let icon = 'fa-file';
+                let iconColor = '#a0aec0';
+
+                if (item.type === 'directory') { icon = 'fa-folder'; iconColor = '#f59e0b'; }
+                if (item.type === 'disk') { icon = 'fa-hdd'; iconColor = '#ef4444'; }
+
+                div.innerHTML = `<i class="fas ${icon} file-icon" style="color:${iconColor}"></i> ${item.name}`;
+
+                // Click Logic
+                div.onclick = () => {
+                    if (item.type === 'directory') {
+                        // If folder mode, clicking navigates INTO it. To select it, we use the "Select Current" button
+                        // OR we could allow selection if we change logic. Standard browser behavior is click=enter.
+                        loadFiles(item.path);
+                    } else if (item.type === 'file') {
+                        if (currentMode === 'file') {
+                            selectItem(div, item.path);
+                        } else {
+                            // In folder/disk mode, ignore files?
+                            // Or maybe allow switching mode automatically? For now, ignore to stay modal.
+                            log('Mode Mismatch: Switch to FILE mode to select this.', 'WARN');
+                        }
+                    } else if (item.type === 'disk') {
+                        if (currentMode === 'disk') {
+                            selectItem(div, item.path);
+                        }
+                    }
+                };
+                root.appendChild(div);
+            });
+        }
+
+        function selectItem(element, path) {
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedPath = path;
+            log(`Target Locked: ${path}`, 'INFO');
+            checkReady();
+        }
+
+        function selectCurrentFolder() {
+            if (currentMode === 'folder' && currentPath) {
+                selectedPath = currentPath;
+                log(`Target Locked: DIRECTORY ${currentPath}`, 'INFO');
+                checkReady();
+                // Visual feedback
+                document.querySelectorAll('.file-item').forEach(el => el.classList.remove('selected'));
+                // Highlight the container or breadcrumb slightly?
+                document.getElementById('current-path-display').style.borderColor = '#00e6d8';
+                setTimeout(() => document.getElementById('current-path-display').style.borderColor = 'rgba(255,255,255,0.05)', 500);
+            }
+        }
+
+        // --- Action Logic ---
+        function checkReady() {
+            const btn = document.getElementById('nuke-btn');
+            if (isArmed && selectedPath) {
+                btn.disabled = false;
+                btn.classList.add('armed');
+            } else {
+                btn.disabled = true;
+                btn.classList.remove('armed');
+            }
+        }
+
+        document.getElementById('arm-switch').addEventListener('change', (e) => {
+            isArmed = e.target.checked;
+            if (isArmed) log('SAFETY INTERLOCK DISENGAGED.', 'WARN');
+            else log('Safety interlock engaged.', 'INFO');
+            checkReady();
+        });
+
+        // Algo Selection
+        function selectAlgo(el, algo) {
+            document.querySelectorAll('.algo-card').forEach(card => card.classList.remove('active'));
+            el.classList.add('active');
+            selectedAlgo = algo;
+            log(`Algorithm set: ${algo.toUpperCase()}`, 'SYS');
+        }
+
+        // Start Wipe
+        document.getElementById('nuke-btn').addEventListener('click', async () => {
+            if (!isArmed || !selectedPath) return;
+
+            const overlay = document.getElementById('wipe-overlay');
+            overlay.classList.add('active');
+            log(`INITIATING WIPE SEQUENCE...`, 'WARN');
+            log(`TARGET: ${selectedPath} [${currentMode.toUpperCase()}]`, 'WARN');
+
+            // Progress Sim
+            let percent = 0;
+            const interval = setInterval(() => {
+                percent += Math.random() * 3;
+                if (percent > 95) percent = 95;
+                document.getElementById('overlay-percent').textContent = Math.floor(percent) + '%';
+            }, 500);
+
+            try {
+                const payload = {
+                    path: selectedPath,
+                    wipe_type: currentMode, // file, folder, or disk
+                    wipe_method: selectedAlgo
+                };
+
+                const response = await fetch('/wipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.stderr || result.message || 'Wipe Failed');
+
+                clearInterval(interval);
+                document.getElementById('overlay-percent').textContent = '100%';
+
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+
+                    let msg = `✅ TARGET DESTROYED.\n\nType: ${currentMode.toUpperCase()}\nPath: ${selectedPath}`;
+
+                    if (result.certificate_pdf) {
+                        const certUrl = `/download/${result.certificate_pdf}`;
+                        msg += `\n\n📄 CERTIFICATE GENERATED.\nClick OK to download.`;
+                        if (confirm(msg)) window.location.href = certUrl;
+                    } else {
+                        alert(msg);
+                    }
+
+                    log('MISSION SUCCESS. TARGET ELIMINATED.', 'SYS');
+                    if (result.certificate_pdf) log(`EVIDENCE: ${result.certificate_pdf}`, 'INFO');
+
+                    // Reset
+                    document.getElementById('arm-switch').click();
+                    if (currentMode === 'disk') loadDisks();
+                    else loadFiles(currentPath);
+
+                }, 1000);
+
+            } catch (e) {
+                clearInterval(interval);
+                overlay.classList.remove('active');
+                log(`FATAL ERROR: ${e.message}`, 'ERR');
+                alert(`Error: ${e.message}`);
+            }
+        });
+
+        // Init
+        window.onload = () => {
+            // Profile menu logic
+            document.querySelectorAll('.profile-dropdown').forEach(d => {
+                d.addEventListener('click', (e) => { e.stopPropagation(); d.classList.toggle('active'); });
+            });
+            document.addEventListener('click', () => document.querySelectorAll('.profile-dropdown').forEach(d => d.classList.remove('active')));
+
+            // Time
+            let seconds = 0;
+            setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('session-timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+
+            // Start
+            setMode('file');
+        };
+    </script>
+</body>
+
+</html>

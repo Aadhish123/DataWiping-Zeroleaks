@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Law Enforcement Access - CRABEX</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .law-enforcement-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 40px;
+            background: #252a2e;
+            border: 1px solid rgba(0, 230, 216, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .le-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .le-badge {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .le-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .le-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .le-content {
+            background: #283538;
+            padding: 40px;
+            border-radius: 10px;
+            color: #e2e8f0;
+            border: 1px solid rgba(0, 230, 216, 0.15);
+        }
+        
+        .le-section {
+            margin-bottom: 30px;
+        }
+        
+        .le-section h2 {
+            color: #1e40af;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #1e40af;
+            padding-bottom: 10px;
+        }
+        
+        .le-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .le-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 230, 216, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .le-list li:before {
+            content: "✓";
+            color: #00e6d8;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .contact-box {
+            background: #f0f9ff;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #1e40af;
+            margin-top: 30px;
+        }
+        
+        .contact-box h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .emergency-notice {
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .emergency-notice strong {
+            color: #dc2626;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="law-enforcement-container">
+        <div class="le-header">
+            <div class="le-badge">🛡️</div>
+            <h1 class="le-title">Law Enforcement Access</h1>
+            <p class="le-subtitle">Data Wiping Audit Logs & Cooperation Portal</p>
+        </div>
+        
+        <div class="le-content">
+            <div class="emergency-notice">
+                <strong>⚠️ NOTICE</strong><br>
+                For urgent investigations, please contact our 24/7 emergency hotline
+            </div>
+            
+            <div class="le-section">
+                <h2>🔍 Available Information</h2>
+                <p>We maintain complete audit trails for all data wiping operations. Upon receipt of valid legal documentation, we can provide:</p>
+                <ul class="le-list">
+                    <li>User identity and verification details (username, phone number, registration info)</li>
+                    <li>Complete operation history with timestamps (UTC)</li>
+                    <li>IP addresses and geolocation data (city, state, country, ISP)</li>
+                    <li>Hardware fingerprints (device identification)</li>
+                    <li>User-stated purposes for each operation</li>
+                    <li>File/folder paths that were wiped</li>
+                    <li>Wipe methods and compliance standards used</li>
+                    <li>Generated certificates with verification codes</li>
+                    <li>Suspicious activity flags and alerts</li>
+                    <li>Account activity patterns and behavioral analytics</li>
+                </ul>
+            </div>
+            
+            <div class="le-section">
+                <h2>📋 Required Documentation</h2>
+                <p>To request access to user data, please provide:</p>
+                <ul class="le-list">
+                    <li>Valid court order, subpoena, or search warrant</li>
+                    <li>Requesting agency name and jurisdiction</li>
+                    <li>Case number and investigation details</li>
+                    <li>Specific user identifier (username, phone number, or email)</li>
+                    <li>Date range for requested records</li>
+                    <li>Official law enforcement contact information</li>
+                </ul>
+            </div>
+            
+            <div class="le-section">
+                <h2>⚡ Data Retention Policy</h2>
+                <ul class="le-list">
+                    <li><strong>Audit Logs:</strong> Retained permanently (cannot be deleted by users)</li>
+                    <li><strong>IP & Location Data:</strong> Retained indefinitely</li>
+                    <li><strong>Certificates:</strong> Stored permanently with cryptographic verification</li>
+                    <li><strong>Suspicious Activity Flags:</strong> Retained for 7 years</li>
+                    <li><strong>User Account Data:</strong> Retained for duration of account + 5 years</li>
+                </ul>
+            </div>
+            
+            <div class="le-section">
+                <h2>🚨 Proactive Reporting</h2>
+                <p>Our system automatically flags suspicious activities including:</p>
+                <ul class="le-list">
+                    <li>High-frequency operations (>5 wipes in 24 hours)</li>
+                    <li>Multiple geographic locations within short timeframes</li>
+                    <li>Suspicious purpose keywords (evidence, hide, cover, investigation, etc.)</li>
+                    <li>VPN/Proxy usage patterns</li>
+                    <li>Operations during unusual hours (2 AM - 5 AM)</li>
+                </ul>
+                <p><strong>Note:</strong> Flagged activities are immediately logged and can be reported to authorities upon request.</p>
+            </div>
+            
+            <div class="contact-box">
+                <h3>📞 Contact Information</h3>
+                <div class="contact-info">
+                    <p><strong>Law Enforcement Liaison:</strong> [Your Name/Department]</p>
+                    <p><strong>Email:</strong> legal@crabex-security.com</p>
+                    <p><strong>Phone:</strong> +1-XXX-XXX-XXXX (Business Hours)</p>
+                    <p><strong>Emergency Hotline:</strong> +1-XXX-XXX-XXXX (24/7)</p>
+                    <p><strong>Secure Portal:</strong> Coming Soon</p>
+                    <p><strong>Response Time:</strong> Within 48 hours of valid request</p>
+                </div>
+            </div>
+            
+            <div class="le-section" style="margin-top: 40px; text-align: center;">
+                <p style="color: #64748b; font-size: 0.9rem;">
+                    CRABEX is committed to preventing criminal misuse of data wiping technology.<br>
+                    We maintain full cooperation with law enforcement agencies worldwide.<br>
+                    All data requests are handled with strict confidentiality and legal compliance.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

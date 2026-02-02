@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiping History - CRABEX</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #00e6d8;
+            --primary-dim: rgba(0, 230, 216, 0.1);
+            --primary-glow: rgba(0, 230, 216, 0.4);
+            --bg-dark: #0f1115;
+            --surface: #161b22;
+            --surface-glass: rgba(22, 27, 34, 0.7);
+            --text-main: #e6edf3;
+            --text-muted: #8b949e;
+            --danger: #ff4e50;
+            --success: #00e6d8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Navbar - Match About/Landing */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(15, 17, 21, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 230, 216, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 0 25px rgba(0, 230, 216, 0.4);
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 10px var(--primary-dim);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-dim);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-links a:hover::before {
+            left: 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            background: rgba(0, 230, 216, 0.05);
+            border: 1px solid rgba(0, 230, 216, 0.1);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--primary), #00b8b0) !important;
+            color: #0f1115 !important;
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.25);
+            border: none;
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 25px rgba(0, 230, 216, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: relative;
+            margin-left: 1rem;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-trigger:hover {
+            border-color: var(--primary);
+            background: rgba(0, 230, 216, 0.05);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .profile-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .profile-arrow {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .profile-menu-content {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid rgba(0, 230, 216, 0.15);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-width: 180px;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-dropdown:hover .profile-menu-content {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .logout-item:hover {
+            background: rgba(255, 78, 80, 0.1);
+            color: var(--danger);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .mobile-menu-toggle span {
+            width: 25px;
+            height: 2px;
+            background: var(--primary);
+            transition: 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: var(--bg-dark);
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                padding: 1rem;
+            }
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 8rem 5% 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* History Card */
+        .history-card {
+            background: var(--surface-glass);
+            border: 1px solid rgba(0, 230, 216, 0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .history-header {
+            padding: 3rem;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(0, 230, 216, 0.05), transparent);
+            border-bottom: 1px solid rgba(0, 230, 216, 0.1);
+        }
+
+        .history-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .history-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Table Styles */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        thead {
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(0, 230, 216, 0.2);
+        }
+
+        th {
+            padding: 1.5rem;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s ease;
+            animation: slideInRight 0.5s ease backwards;
+        }
+
+        /* Staggered Animation for Rows */
+        tbody tr:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        tbody tr:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        tbody tr:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        tbody tr:nth-child(4) {
+            animation-delay: 0.25s;
+        }
+
+        tbody tr:nth-child(5) {
+            animation-delay: 0.3s;
+        }
+
+        /* Add more if needed or let CSS loop handle visible ones roughly */
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 230, 216, 0.03);
+            transform: translateX(5px);
+            border-left: 2px solid var(--primary);
+        }
+
+        td {
+            padding: 1.2rem 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .type-icon {
+            color: var(--primary);
+        }
+
+        .method-tag {
+            font-family: 'JetBrains Mono', monospace;
+            color: #d2a8ff;
+            background: rgba(210, 168, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(210, 168, 255, 0.2);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-success {
+            background: rgba(0, 230, 216, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(0, 230, 216, 0.3);
+            box-shadow: 0 0 10px rgba(0, 230, 216, 0.1);
+        }
+
+        .status-failed {
+            background: rgba(255, 78, 80, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 78, 80, 0.3);
+            box-shadow: 0 0 10px rgba(255, 78, 80, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 6rem 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .empty-icon-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: #0f1115;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 230, 216, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 230, 216, 0.5);
+            background: #fff;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: #0b0d10;
+        }
+
+        /* Particles Background */
+        .background-fx {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: orbFloat 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--primary-glow);
+            top: -200px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(118, 75, 162, 0.3);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.2;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(30px, -30px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Dynamic Background -->
+    <div class="background-fx">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='crabEX.jpg') }}" alt="CRABEX" class="logo">
+                <a href="{{ url_for('home') }}" class="brand">CRABEX</a>
+            </div>
+
+            <button class="mobile-menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('wipe_tool') }}">Wipe Tool</a>
+                <a href="{{ url_for('history') }}" class="active">History</a>
+                <a href="{{ url_for('help_page') }}">Help</a>
+
+                {% if session.get('user_id') %}
+                <div class="profile-dropdown">
+                    <div class="profile-trigger">
+                        <img src="https://ui-avatars.com/api/?name={{ session.get('username', 'User') }}&background=00e6d8&color=1c2023&bold=true"
+                            class="profile-avatar">
+                        <span class="profile-name">{{ session.get('username', 'User') }}</span>
+                        <span class="profile-arrow">▼</span>
+                    </div>
+                    <div class="profile-menu-content">
+                        <a href="{{ url_for('logout') }}" class="profile-menu-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="nav-cta">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="history-card">
+            <div class="history-header">
+                <h1 class="history-title">Operation History</h1>
+                <p class="history-subtitle">Immutable audit trail of all secure data destruction events.
+                    Cryptographically verified.</p>
+            </div>
+
+            <div class="table-container">
+                {% if history %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>timestamp</th>
+                            <th>operation type</th>
+                            <th>target path</th>
+                            <th>method</th>
+                            <th>status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                        <tr>
+                            <td class="font-mono">
+                                {{ item.timestamp|replace('T', ' ')|truncate(19, True, '') }}
+                            </td>
+                            <td>
+                                <div class="type-badge">
+                                    {% if 'file' in item.type.lower() %}
+                                    <i class="fas fa-file type-icon"></i>
+                                    {% elif 'folder' in item.type.lower() %}
+                                    <i class="fas fa-folder type-icon"></i>
+                                    {% else %}
+                                    <i class="fas fa-hdd type-icon"></i>
+                                    {% endif %}
+                                    {{ item.type }}
+                                </div>
+                            </td>
+                            <td class="font-mono" title="{{ item.path }}">
+                                {{ item.path }}
+                            </td>
+                            <td>
+                                <span class="method-tag">{{ item.method }}</span>
+                            </td>
+                            <td>
+                                {% if item.success %}
+                                <span class="status-pill status-success">
+                                    <i class="fas fa-shield-check"></i> Verified
+                                </span>
+                                {% else %}
+                                <span class="status-pill status-failed">
+                                    <i class="fas fa-times-circle"></i> Failed
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon-container">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff;">No Operations Recorded</h3>
+                    <p class="empty-text">Your secure wipe history is empty. Initialize a data destruction sequence to
+                        generate audit logs.</p>
+                    <a href="{{ url_for('wipe_tool') }}" class="btn-primary">
+                        <i class="fas fa-rocket"></i> Launch Wipe Tool
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Zero Leaks Data Wiping Service. All systems nominal.</p>
+    </footer>
+
+    <!-- Chatbot -->
+    {% include 'includes/chatbot.html' %}
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            navLinks.classList.toggle('active');
+            // Basic animation state for toggle button could be added here
+        }
+    </script>
+</body>
+
+</html>

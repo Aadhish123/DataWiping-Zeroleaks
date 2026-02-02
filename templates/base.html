@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Zero Leaks - Data Wiping Service{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #1c2023;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container-large {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation - Dark Enterprise Command Center */
+        nav {
+            background: #252a2e;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 230, 216, 0.15);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00e6d8;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+
+        nav ul li a {
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #00e6d8;
+        }
+
+        /* Logout button */
+        .logout-btn {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background: #252a2e;
+            border-top: 1px solid rgba(0, 230, 216, 0.15);
+            padding: 30px 0;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        footer p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: #00e6d8;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1001;
+        }
+
+        .mobile-menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #00e6d8;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Mobile Responsive Navigation */
+        @media (max-width: 768px) {
+            nav .container {
+                position: relative;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 77px;
+                right: -100%;
+                width: 280px;
+                height: calc(100vh - 77px);
+                background: #252a2e;
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+                padding: 2rem 1.5rem;
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                border-left: 1px solid rgba(0, 230, 216, 0.2);
+                margin: 0;
+            }
+
+            nav ul.active {
+                right: 0;
+            }
+
+            nav ul li {
+                width: 100%;
+            }
+
+            nav ul li a {
+                display: block;
+                width: 100%;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav ul {
+                width: 100%;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">🔥 Zero Leaks</a>
+
+            <button class="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('wipe_tool') }}">Wipe Tool</a></li>
+                <li><a href="{{ url_for('history') }}">History</a></li>
+                <li><a href="{{ url_for('help_page') }}">Help</a></li>
+                <li>
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown" style="margin-left: 0;">
+                        <div class="profile-trigger">
+                            <img src="https://ui-avatars.com/api/?name={{ session.get('username', 'User') }}&background=00e6d8&color=1c2023&bold=true"
+                                alt="User" class="profile-avatar">
+                            <span class="profile-name">{{ session.get('username', 'User') }}</span>
+                            <span class="profile-arrow">▼</span>
+                        </div>
+                        <div class="profile-menu-content">
+                            <a href="{{ url_for('logout') }}" class="profile-menu-item logout-item">
+                                <span>🚪</span> Logout
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="{% block container_class %}container{% endblock %}">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Zero Leaks Data Wiping Service. All rights reserved.</p>
+            <p>Professional Data Destruction | Compliance Certified | <a href="/about">Learn More</a></p>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Floating Chatbot Widget -->
+    <div id="chatWidget" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999;">
+        <button id="chatToggle" style="
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #00e6d8;
+            border: none;
+            color: #1c2023;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 230, 216, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        " onclick="toggleChatWidget()">
+            💬
+        </button>
+
+        <div id="miniChat" style="
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: #1c2023;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0, 230, 216, 0.2);
+            flex-direction: column;
+            overflow: hidden;
+        ">
+            <div style="
+                background: #252a2e;
+                color: #00e6d8;
+                padding: 20px;
+                border-bottom: 1px solid rgba(0, 230, 216, 0.2);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <div>
+                    <strong style="font-size: 1.1rem;">CRABEX AI</strong>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.85rem;">How can I help?</p>
+                </div>
+                <button onclick="toggleChatWidget()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    font-size: 1.2rem;
+                ">✕</button>
+            </div>
+
+            <div id="miniChatMessages" style="
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px;
+                background: #1c2023;
+            ">
+                <div style="text-align: center; color: #94a3b8; padding: 20px;">
+                    <p style="margin-bottom: 15px;">👋 Hi! I'm your AI assistant.</p>
+                    <p style="font-size: 0.9rem;">Ask me about data wiping, security, or compliance!</p>
+                </div>
+            </div>
+
+            <div
+                style="padding: 15px; background: #252a2e; border-top: 1px solid rgba(0, 230, 216, 0.15); display: flex; gap: 10px;">
+                <input id="miniChatInput" type="text" placeholder="Type a message..."
+                    onkeypress="handleMiniChatKeyPress(event)" style="
+                        flex: 1;
+                        padding: 12px 15px;
+                        border: 2px solid rgba(0, 230, 216, 0.2);
+                        border-radius: 20px;
+                        outline: none;
+                        font-size: 0.9rem;
+                        background: #1c2023;
+                        color: #e2e8f0;
+                    ">
+                <button onclick="sendMiniChatMessage()" style="
+                    width: 40px;
+                    height: 40px;
+                    background: #00e6d8;
+                    color: #1c2023;
+                    border: none;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    font-size: 1.2rem;
+                ">➤</button>
+            </div>
+
+            <div
+                style="padding: 10px; text-align: center; background: #252a2e; border-top: 1px solid rgba(0, 230, 216, 0.15);">
+                <a href="/chatbot" style="color: #00e6d8; text-decoration: none; font-size: 0.85rem;">
+                    Open full chat →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleChatWidget() {
+            const miniChat = document.getElementById('miniChat');
+            const chatToggle = document.getElementById('chatToggle');
+
+            if (miniChat.style.display === 'none') {
+                miniChat.style.display = 'flex';
+                chatToggle.style.transform = 'rotate(360deg)';
+                document.getElementById('miniChatInput').focus();
+            } else {
+                miniChat.style.display = 'none';
+                chatToggle.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function addMiniMessage(text, isUser) {
+            const messagesContainer = document.getElementById('miniChatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                margin-bottom: 15px;
+                display: flex;
+                justify-content: ${isUser ? 'flex-end' : 'flex-start'};
+            `;
+
+            messageDiv.innerHTML = `
+                <div style="
+                    max-width: 75%;
+                    padding: 12px 16px;
+                    border-radius: 16px;
+                    ${isUser ?
+                    'background: #00e6d8; color: #1c2023; border-bottom-right-radius: 4px;' :
+                    'background: #252a2e; color: #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.2); border: 1px solid rgba(0, 230, 216, 0.15); border-bottom-left-radius: 4px;'
+                }
+                    line-height: 1.5;
+                    font-size: 0.9rem;
+                    white-space: pre-line;
+                ">
+                    ${text}
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendMiniChatMessage() {
+            const input = document.getElementById('miniChatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            addMiniMessage(message, true);
+            input.value = '';
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'miniTyping';
+            typingDiv.style.cssText = 'margin-bottom: 15px; display: flex; justify-content: flex-start;';
+            typingDiv.innerHTML = `
+                <div style="
+                    padding: 12px 16px;
+                    background: #252a2e;
+                    border-radius: 16px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                    border: 1px solid rgba(0, 230, 216, 0.15);
+                    display: flex;
+                    gap: 5px;
+                ">
+                    <div style="width: 6px; height: 6px; border-radius: 50%; background: #00e6d8; animation: dot1 1.4s infinite;"></div>
+                    <div style="width: 6px; height: 6px; border-radius: 50%; background: #00e6d8; animation: dot2 1.4s infinite;"></div>
+                    <div style="width: 6px; height: 6px; border-radius: 50%; background: #00e6d8; animation: dot3 1.4s infinite;"></div>
+                </div>
+            `;
+            document.getElementById('miniChatMessages').appendChild(typingDiv);
+
+            try {
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                document.getElementById('miniTyping')?.remove();
+
+                if (data.response) {
+                    addMiniMessage(data.response, false);
+                }
+            } catch (error) {
+                document.getElementById('miniTyping')?.remove();
+                addMiniMessage('Sorry, I encountered an error. Please try again.', false);
+            }
+        }
+
+        function handleMiniChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMiniChatMessage();
+            }
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes dot1 {
+                0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+                30% { transform: translateY(-8px); opacity: 1; }
+            }
+            @keyframes dot2 {
+                0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+                30% { transform: translateY(-8px); opacity: 1; }
+                10% { animation-delay: 0.2s; }
+            }
+            @keyframes dot3 {
+                0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+                30% { transform: translateY(-8px); opacity: 1; }
+                20% { animation-delay: 0.4s; }
+            }
+            #chatToggle:hover {
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <script>
+        function toggleMobileMenu() {
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            const menu = document.getElementById('navMenu');
+
+            toggle.classList.toggle('active');
+            menu.classList.toggle('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            const menu = document.getElementById('navMenu');
+
+            if (!event.target.closest('nav') && menu.classList.contains('active')) {
+                toggle.classList.remove('active');
+                menu.classList.remove('active');
+            }
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', function () {
+                const toggle = document.querySelector('.mobile-menu-toggle');
+                const menu = document.getElementById('navMenu');
+
+                toggle.classList.remove('active');
+                menu.classList.remove('active');
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

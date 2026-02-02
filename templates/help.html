@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center | CRABEX Secure</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #00e6d8;
+            --primary-dim: rgba(0, 230, 216, 0.1);
+            --primary-glow: rgba(0, 230, 216, 0.6);
+            --bg-dark: #050608;
+            --surface: #0f1115;
+            --surface-glass: rgba(15, 17, 21, 0.7);
+            --text-main: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #ff003c;
+            /* Aggressive Accent */
+            --success: #00e6d8;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            perspective: 1000px;
+            /* For 3D effects */
+        }
+
+        /* --- Saitan CRT Overlay --- */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2));
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, transparent 50%, black 150%);
+            z-index: 9998;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 9997;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- Boot Sequence Overlay --- */
+        #bootSequence {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            overflow: hidden;
+        }
+
+        .boot-line {
+            opacity: 0;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        .boot-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: var(--primary);
+            animation: blink 0.1s infinite;
+        }
+
+        /* --- Animated Background --- */
+        .background-fx {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .grid-floor {
+            position: absolute;
+            bottom: -20%;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 230, 216, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 216, 0.1) 1px, transparent 1px);
+            background-size: 80px 80px;
+            transform: rotateX(60deg);
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, transparent 60%);
+            animation: gridMove 20s infinite linear;
+        }
+
+        @keyframes gridMove {
+            from {
+                transform: rotateX(60deg) translateY(0);
+            }
+
+            to {
+                transform: rotateX(60deg) translateY(80px);
+            }
+        }
+
+        /* --- Glitch Typography --- */
+        .glitch-text {
+            position: relative;
+            color: #fff;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 var(--accent);
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 var(--primary);
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(14px, 9999px, 86px, 0);
+            }
+
+            20% {
+                clip: rect(89px, 9999px, 15px, 0);
+            }
+
+            40% {
+                clip: rect(25px, 9999px, 126px, 0);
+            }
+
+            60% {
+                clip: rect(66px, 9999px, 2px, 0);
+            }
+
+            80% {
+                clip: rect(11px, 9999px, 78px, 0);
+            }
+
+            100% {
+                clip: rect(104px, 9999px, 55px, 0);
+            }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% {
+                clip: rect(65px, 9999px, 100px, 0);
+            }
+
+            100% {
+                clip: rect(20px, 9999px, 15px, 0);
+            }
+        }
+
+        /* --- Navbar (Unified) --- */
+        /* Match History/Standard exactly */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(15, 17, 21, 0.85);
+            /* Standardized */
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 230, 216, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.5s;
+            /* Kept for boot sequence */
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 0 25px rgba(0, 230, 216, 0.4);
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 10px var(--primary-dim);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            /* Standardized font */
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-dim);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-links a:hover::before {
+            left: 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            background: rgba(0, 230, 216, 0.05);
+            border: 1px solid rgba(0, 230, 216, 0.1);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--primary), #00b8b0) !important;
+            color: #0f1115 !important;
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.25);
+            border: none;
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 25px rgba(0, 230, 216, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Profile Dropdown (Restored) */
+        .profile-dropdown {
+            position: relative;
+            margin-left: 1rem;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-trigger:hover {
+            border-color: var(--primary);
+            background: rgba(0, 230, 216, 0.05);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .profile-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .profile-arrow {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .profile-menu-content {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid rgba(0, 230, 216, 0.15);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-width: 180px;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-dropdown:hover .profile-menu-content {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .logout-item:hover {
+            background: rgba(255, 78, 80, 0.1);
+            color: var(--danger);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .mobile-menu-toggle span {
+            width: 25px;
+            height: 2px;
+            background: var(--primary);
+            transition: 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: var(--bg-dark);
+                flex-direction: column;
+                padding: 2rem;
+                transition: 0.3s;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                padding: 1rem;
+            }
+        }
+
+        /* --- System Status (Aggressive) --- */
+        .status-dashboard {
+            position: absolute;
+            top: 120px;
+            right: 5%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 10;
+            perspective: 500px;
+        }
+
+        .status-indicator {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--primary-dim);
+            padding: 0.5rem 1rem;
+            border-left: 3px solid var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 230, 216, 0.1);
+            transform: rotateY(-10deg);
+            transition: 0.3s;
+        }
+
+        .status-indicator:hover {
+            transform: rotateY(0) scale(1.05);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .status-text {
+            opacity: 0.8;
+        }
+
+        .status-val {
+            font-weight: 800;
+            float: right;
+            margin-left: 1rem;
+        }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative;
+            z-index: 1;
+            padding-top: 180px;
+            padding-bottom: 80px;
+            text-align: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            background: rgba(0, 230, 216, 0.05);
+            box-shadow: 0 0 20px var(--primary-dim);
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -2px;
+        }
+
+        .hero-search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 3rem auto 0;
+            border: 1px solid var(--primary-dim);
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            transform: skewX(-10deg);
+        }
+
+        .hero-search {
+            background: rgba(0, 230, 216, 0.05);
+            border: 1px solid rgba(0, 230, 216, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            transform: skewX(10deg);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        .search-icon {
+            color: var(--primary);
+            margin-right: 1rem;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        /* --- Holo Cards (Tilt) --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 6rem;
+            padding: 0 2rem;
+            perspective: 1000px;
+            z-index: 1;
+        }
+
+        .feature-card {
+            background: rgba(20, 20, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            border-radius: 4px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+            /* JS handles this */
+            backdrop-filter: blur(5px);
+        }
+
+        /* Corner Accents */
+        .feature-card::before,
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            transition: 0.3s;
+            opacity: 0.5;
+        }
+
+        .feature-card::before {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .feature-card::after {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+
+        .feature-card:hover::before,
+        .feature-card:hover::after {
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            box-shadow: inset 0 0 20px var(--primary-dim);
+        }
+
+        .feature-content {
+            transform: translateZ(30px);
+        }
+
+        /* Pop out effect */
+        .feature-icon-wrapper {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Troubleshooter (Cyberpunk Style) --- */
+        .wizard-section {
+            max-width: 900px;
+            margin: 0 auto 6rem;
+            z-index: 1;
+            position: relative;
+        }
+
+        .wizard-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--primary-dim);
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .wizard-card::before {
+            content: "DIAGNOSTIC_CORE//ACTIVE";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        .wizard-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 1rem 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px var(--primary-dim);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wizard-btn:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        /* --- FAQ (Accordion) --- */
+        .faq-section {
+            max-width: 900px;
+            margin: 0 auto 6rem;
+            padding: 0 2rem;
+            z-index: 1;
+            position: relative;
+        }
+
+        .faq-item {
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
+        }
+
+        .faq-item:hover,
+        .faq-item.active {
+            border-color: var(--primary);
+            background: rgba(0, 230, 216, 0.05);
+        }
+
+        .faq-header {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        .faq-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: 0.4s ease;
+            border-top: 1px solid transparent;
+        }
+
+        .faq-item.active .faq-body {
+            max-height: 300px;
+            border-top-color: var(--primary-dim);
+        }
+
+        .faq-content {
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* --- Footer Terminal --- */
+        .contact-terminal {
+            max-width: 900px;
+            margin: 0 auto 6rem;
+            padding: 0 2rem;
+            z-index: 1;
+            position: relative;
+        }
+
+        .terminal-box {
+            background: #000;
+            border: 1px solid #333;
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: #ccc;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .cmd-input {
+            color: var(--primary);
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        /* --- Support Modal --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: flash 0.2s;
+        }
+
+        @keyframes flash {
+            from {
+                background: #fff;
+            }
+
+            to {
+                background: rgba(0, 0, 0, 0.9);
+            }
+        }
+
+        .modal-box {
+            background: #050505;
+            border: 2px solid var(--primary);
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 0 100px var(--primary-glow);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Utilities */
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Saitan Overlays -->
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="noise"></div>
+
+    <!-- Boot Sequence -->
+    <div id="bootSequence"></div>
+
+    <!-- Background -->
+    <div class="background-fx">
+        <div class="grid-floor"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="mainNav" style="transform: translateY(-100%); transition: transform 0.5s;">
+        <div class="navbar-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='crabEX.jpg') }}" alt="CRABEX" class="logo">
+                <a href="{{ url_for('home') }}" class="brand">CRABEX</a>
+            </div>
+
+            <button class="mobile-menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('wipe_tool') }}">Wipe Tool</a>
+                <a href="{{ url_for('history') }}">History</a>
+                <a href="{{ url_for('help_page') }}" class="active">Help</a>
+
+                {% if session.get('user_id') %}
+                <div class="profile-dropdown">
+                    <div class="profile-trigger">
+                        <img src="https://ui-avatars.com/api/?name={{ session.get('username', 'User') }}&background=00e6d8&color=1c2023&bold=true"
+                            class="profile-avatar">
+                        <span class="profile-name">{{ session.get('username', 'User') }}</span>
+                        <span class="profile-arrow">▼</span>
+                    </div>
+                    <div class="profile-menu-content">
+                        <a href="{{ url_for('logout') }}" class="profile-menu-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="nav-cta">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Status Dashboard -->
+    <div class="status-dashboard" id="statusPanel" style="opacity:0; transition: opacity 1s;">
+        <div class="status-indicator">
+            <span class="status-text">API_GATEWAY</span> <span class="status-val"
+                style="color:var(--success)">ONLINE</span>
+        </div>
+        <div class="status-indicator">
+            <span class="status-text">SECURE_DB</span> <span class="status-val"
+                style="color:var(--success)">LOCKED</span>
+        </div>
+        <div class="status-indicator">
+            <span class="status-text">WIPE_CORE</span> <span class="status-val" style="color:var(--accent)">IDLE</span>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero-section" id="heroSec" style="opacity:0;">
+        <div class="hero-badge">SYSTEM_ROOT_ACCESS // GRANTED</div>
+        <h1 class="hero-title glitch-text" data-text="SUPPORT PROTOCOL">SUPPORT PROTOCOL</h1>
+
+        <div class="hero-search-container">
+            <div class="hero-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="QUERY_DATABASE..." id="searchInput">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features (Holo Cards) -->
+    <section class="features-grid" id="featuresSec" style="opacity:0;">
+        <div class="feature-card" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare
+            data-tilt-max-glare="0.5">
+            <div class="feature-content">
+                <div class="feature-icon-wrapper"><i class="fas fa-tachometer-alt"></i></div>
+                <h3 class="feature-title">Hyper-Speed</h3>
+                <p style="color:#aaa;">SIMD-Accelerated destruction matrix. 2500+ MB/s throughput.</p>
+            </div>
+        </div>
+        <div class="feature-card" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare
+            data-tilt-max-glare="0.5">
+            <div class="feature-content">
+                <div class="feature-icon-wrapper"><i class="fas fa-shield-alt"></i></div>
+                <h3 class="feature-title">Compliance</h3>
+                <p style="color:#aaa;">NIST 800-88 & DoD 5220.22-M verified protocols.</p>
+            </div>
+        </div>
+        <div class="feature-card" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare
+            data-tilt-max-glare="0.5">
+            <div class="feature-content">
+                <div class="feature-icon-wrapper"><i class="fas fa-file-contract"></i></div>
+                <h3 class="feature-title">Audit Logs</h3>
+                <p style="color:#aaa;">Immutable blockchain-anchored certificates.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Troubleshooter -->
+    <section class="wizard-section" id="wizardSec" style="opacity:0;">
+        <div class="wizard-card" id="wizardCard">
+            <h3 style="font-size:1.5rem; color:#fff; margin-bottom:2rem; font-family:'JetBrains Mono';">IDENTIFY_ANOMALY
+            </h3>
+            <div class="wizard-options" style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                <button class="wizard-btn" onclick="wizardStep('wipe')">WIPE_FAILURE</button>
+                <button class="wizard-btn" onclick="wizardStep('login')">ACCESS_DENIED</button>
+                <button class="wizard-btn" onclick="openSupportModal()">HUMAN_INTERVENTION</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section" id="faqSec" style="opacity:0;">
+        <h2 style="text-align:center; color:#fff; margin-bottom:2rem; font-family:'JetBrains Mono'; font-size:2rem;">
+            [FAQ_DATABASE]</h2>
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <span class="faq-question">>> VERIFY_CERTIFICATE_INTEGRITY?</span>
+                <i class="fas fa-plus" style="color:var(--primary)"></i>
+            </div>
+            <div class="faq-body">
+                <div class="faq-content">Input SHA-256 hash in Verification Module. Cross-reference with blockchain
+                    ledger.</div>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <span class="faq-question">>> MAGNETIC_RECOVERY_RISK?</span>
+                <i class="fas fa-plus" style="color:var(--primary)"></i>
+            </div>
+            <div class="faq-body">
+                <div class="faq-content">Negative. DoD 3-pass algorithm renders signal residue indistinguishable from
+                    background noise.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Terminal Footer -->
+    <section class="contact-terminal" id="termSec" style="opacity:0;">
+        <div class="terminal-box">
+            <div style="margin-bottom:1rem; color:#666;">// ROOT_TERMINAL_ACCESS</div>
+            <div class="cmd-line">root@crabex:~$ ./contact_support.sh --priority=high</div>
+            <div class="cmd-line">>> Uplink established. Encryption: AES-256-GCM.</div>
+            <div class="cmd-line">>> <span class="cmd-input">Awaiting Input...</span><span class="boot-cursor"></span>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button onclick="openSupportModal()" class="wizard-btn">
+                    <i class="fas fa-terminal"></i> EXECUTE_TICKET()
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Modal -->
+    <div class="modal-overlay" id="supportModal">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeSupportModal()">[X]</span>
+            <h2 style="color:var(--primary); font-family:'JetBrains Mono'; margin-bottom:1rem;">SECURE_TRANSMISSION</h2>
+            <form onsubmit="event.preventDefault(); submitTicket();">
+                <input type="text" class="search-input" placeholder="SUBJECT_HEADER"
+                    style="border-bottom:1px solid #333; margin-bottom:1rem;">
+                <textarea class="search-input" rows="5" placeholder="PAYLOAD_DESCRIPTION..."
+                    style="border-bottom:1px solid #333; margin-bottom:1rem;"></textarea>
+                <button class="wizard-btn" style="width:100%;">SEND_PACKET</button>
+            </form>
+        </div>
+    </div>
+
+    {% include 'includes/chatbot.html' %}
+
+    <!-- Vanilla-Tilt Script (Inlined for simplicity/reliability) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <script>
+        // --- Boot Sequence & Init ---
+        const bootLines = [
+            "INITIALIZING_KERNEL...",
+            "LOADING_MODULES: [WIPE_CORE, CRYPTO_LIB, UI_FX]",
+            "CONNECTING_TO_MAINFRAME... SUCCESS",
+            "DECRYPTING_INTERFACE...",
+            "ACCESS_GRANTED."
+        ];
+
+        const bootEl = document.getElementById('bootSequence');
+
+        async function runBoot() {
+            let delay = 200;
+            for (let line of bootLines) {
+                const p = document.createElement('div');
+                p.className = 'boot-line';
+                p.innerText = line;
+                bootEl.appendChild(p);
+
+                // Typewriter effect
+                p.style.opacity = 1;
+                await new Promise(r => setTimeout(r, Math.random() * 300 + 100));
+            }
+
+            await new Promise(r => setTimeout(r, 500));
+
+            // "Open" effect
+            bootEl.style.transition = "transform 0.5s ease-in-out, opacity 0.5s";
+            bootEl.style.transform = "scaleY(0)";
+            bootEl.style.opacity = "0";
+
+            setTimeout(() => {
+                bootEl.style.display = 'none';
+                revealUI();
+            }, 500);
+        }
+
+        function revealUI() {
+            document.getElementById('mainNav').style.transform = 'translateY(0)';
+            document.getElementById('statusPanel').style.opacity = '1';
+
+            const sections = ['heroSec', 'featuresSec', 'wizardSec', 'faqSec', 'termSec'];
+            sections.forEach((id, idx) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    el.style.transition = 'opacity 0.8s, transform 0.8s';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)'; // Reset if we added a slide effect
+                }, idx * 200);
+            });
+        }
+
+        // --- Wizard Logic ---
+        const wizardCard = document.getElementById('wizardCard');
+        function wizardStep(type) {
+            wizardCard.innerHTML = `
+                <h3 style="color:var(--primary); margin-bottom:1rem; font-family:'JetBrains Mono'">ANALYSIS_COMPLETE</h3>
+                <p style="color:#aaa; margin-bottom:2rem;">ERROR_CODE: ${type.toUpperCase()}_0x99. SUGGESTION: ELEVATE_PRIVILEGES REQ ADMIN.</p>
+                <button class="wizard-btn" onclick="resetWizard()">RESET_DIAGNOSTIC</button>
+            `;
+        }
+        function resetWizard() {
+            wizardCard.innerHTML = `
+                <h3 style="font-size:1.5rem; color:#fff; margin-bottom:2rem; font-family:'JetBrains Mono';">IDENTIFY_ANOMALY</h3>
+                <div class="wizard-options" style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                    <button class="wizard-btn" onclick="wizardStep('wipe')">WIPE_FAILURE</button>
+                    <button class="wizard-btn" onclick="wizardStep('login')">ACCESS_DENIED</button>
+                    <button class="wizard-btn" onclick="openSupportModal()">HUMAN_INTERVENTION</button>
+                </div>
+            `;
+        }
+
+        // --- FAQ Logic ---
+        function toggleFaq(header) {
+            header.parentElement.classList.toggle('active');
+        }
+
+        // --- Modal Logic ---
+        function openSupportModal() { document.getElementById('supportModal').classList.add('active'); }
+        function closeSupportModal() { document.getElementById('supportModal').classList.remove('active'); }
+        function submitTicket() {
+            const btn = document.querySelector('#supportModal button');
+            const original = btn.innerText;
+            btn.innerText = "TRANSMITTING...";
+            setTimeout(() => {
+                btn.innerHTML = "PACKET_SENT";
+                setTimeout(() => { closeSupportModal(); btn.innerText = original; }, 1000);
+            }, 1000);
+        }
+
+        // Initialize (Vanilla Tilt auto-inits via data attributes)
+        window.addEventListener('load', runBoot);
+
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            navLinks.classList.toggle('active');
+        }
+
+    </script>
+</body>
+
+</html>

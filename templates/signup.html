@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - CRABEX</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="auth-layout">
+        <!-- Left Panel: Visual/Brand -->
+        <div class="auth-visual">
+            <div class="visual-overlay"></div>
+            <img src="{{ url_for('static', filename='home_images/security.jpg') }}" alt="Background" class="visual-bg">
+
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <img src="{{ url_for('static', filename='crabEX.jpg') }}" alt="Logo">
+                    <span>CRABEX</span>
+                </div>
+                <a href="{{ url_for('home') }}" class="back-link">Back to website →</a>
+            </div>
+
+            <div class="visual-content">
+                <h2>Capturing Security,<br>Creating Trust.</h2>
+                <div class="carousel-indicators-mock">
+                    <span class="active"></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Form -->
+        <div class="auth-form-container">
+            <div class="auth-form-wrapper">
+                <div class="auth-header">
+                    <h1>Create an account</h1>
+                    <p class="auth-subtitle">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+                </div>
+
+                <!-- Flash Messages -->
+                <div class="alert-container">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <form method="post" id="signupForm" class="modern-form">
+
+                    <div class="input-group-modern">
+                        <input type="text" name="username" id="username" placeholder=" " required
+                            autocomplete="username" minlength="3">
+                        <label for="username">Username</label>
+                        <div class="validation-message" id="usernameMsg"></div>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <input type="tel" name="phone_number" id="phone_number" placeholder=" " required
+                            autocomplete="tel">
+                        <label for="phone_number">Phone Number</label>
+                        <div class="validation-message" id="phoneMsg"></div>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <input type="password" name="password" id="password" placeholder=" " required
+                            autocomplete="new-password" minlength="8">
+                        <label for="password">Password</label>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <!-- Password Strength -->
+                    <div class="password-strength" style="margin-top: -10px; margin-bottom: 10px;">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"
+                        style="text-align: right; font-size: 0.8rem; margin-top: -5px;"></div>
+                    <div class="validation-message" id="passwordMsg"></div>
+
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="terms" id="terms" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#">Terms & Conditions</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-auth-primary" id="submitBtn">
+                        Create Account
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password Toggle
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function (e) {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+
+        // Auto-dismiss alerts
+        document.addEventListener('DOMContentLoaded', () => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 500);
+                }, 3500); // Disappear after 3.5s
+            });
+        });
+
+        // Form Loading State
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+            // Basic validation check before loading state
+            const username = document.getElementById('username').value;
+            // ... (other checks handled by HTML5 req attributes mostly)
+
+            // If valid (simple check), show loading
+            if (this.checkValidity()) {
+                const btn = this.querySelector('.btn-auth-primary');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+                btn.style.opacity = '0.7';
+            }
+        });
+
+        // Background Carousel Logic
+        const slides = [
+            {
+                image: "{{ url_for('static', filename='home_images/security.jpg') }}",
+                title: "Capturing Security,<br>Creating Trust."
+            },
+            {
+                image: "{{ url_for('static', filename='home_images/speed.jpg') }}",
+                title: "Speed Beyond<br>Expectations."
+            },
+            {
+                image: "{{ url_for('static', filename='home_images/crossplatform.jpg') }}",
+                title: "Any Device,<br>Anytime."
+            }
+        ];
+
+        let currentSlide = 0;
+        const bgImage = document.querySelector('.visual-bg');
+        const titleElement = document.querySelector('.visual-content h2');
+        const indicators = document.querySelectorAll('.carousel-indicators-mock span');
+
+        function updateSlide() {
+            // Fade out
+            bgImage.style.opacity = '0';
+            titleElement.style.opacity = '0';
+
+            setTimeout(() => {
+                // Update content
+                bgImage.src = slides[currentSlide].image;
+                titleElement.innerHTML = slides[currentSlide].title;
+
+                // Update indicators
+                indicators.forEach((ind, index) => {
+                    ind.classList.toggle('active', index === currentSlide);
+                });
+
+                // Fade in
+                bgImage.style.opacity = '1';
+                titleElement.style.opacity = '1';
+            }, 500); // Wait for fade out
+        }
+
+        // Initialize transition styles
+        bgImage.style.transition = 'opacity 0.5s ease';
+        titleElement.style.transition = 'opacity 0.5s ease';
+
+        // Auto advance
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            updateSlide();
+        }, 5000);
+
+        // Input Float Label Logic & Validation Helper
+        const inputs = document.querySelectorAll('.input-group-modern input');
+
+        function updateInputState(input) {
+            if (input.value && input.value.trim() !== '') {
+                input.classList.add('has-content');
+            } else {
+                input.classList.remove('has-content');
+            }
+        }
+
+        inputs.forEach(input => {
+            updateInputState(input);
+            input.addEventListener('input', () => updateInputState(input));
+            input.addEventListener('blur', () => updateInputState(input));
+            input.addEventListener('animationstart', (e) => {
+                if (e.animationName === 'onAutoFillStart') {
+                    input.classList.add('has-content');
+                }
+            });
+        });
+
+        // Password Strength Checker
+        document.getElementById('password').addEventListener('input', function () {
+            const password = this.value;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            let strength = 0;
+            let status = '';
+            let color = '';
+
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/[0-9]/)) strength += 25;
+            if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+
+            if (strength <= 25) {
+                status = 'Weak';
+                color = '#ef4444';
+            } else if (strength <= 50) {
+                status = 'Fair';
+                color = '#f59e0b';
+            } else if (strength <= 75) {
+                status = 'Good';
+                color = '#3b82f6';
+            } else {
+                status = 'Strong';
+                color = '#10b981';
+            }
+            if (password.length === 0) {
+                strength = 0;
+                status = '';
+            }
+
+            if (strengthBar) {
+                strengthBar.style.width = strength + '%';
+                strengthBar.style.background = color;
+                strengthBar.style.height = '4px'; // Inline style for override
+                strengthBar.style.borderRadius = '2px';
+                strengthBar.style.transition = 'all 0.3s ease';
+            }
+            if (strengthText) {
+                strengthText.textContent = status;
+                strengthText.style.color = color;
+            }
+        });
+
+        // Additional Validation UI
+        function showValidation(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.style.color = '#ef4444';
+                element.style.fontSize = '0.8rem';
+                element.style.marginTop = '4px';
+                setTimeout(() => { element.textContent = ''; }, 3000);
+            }
+        }
+
+        // Custom validation on submit
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone_number').value;
+            const terms = document.getElementById('terms').checked;
+            let isValid = true;
+
+            // Simple checks
+            if (username.length < 3) {
+                showValidation('usernameMsg', 'Username must be at least 3 characters');
+                isValid = false;
+            }
+            if (password.length < 8) {
+                showValidation('passwordMsg', 'Password must be at least 8 characters');
+                isValid = false;
+            }
+            // Basic phone regex
+            if (!/^\+?[\d\s-]{10,}$/.test(phone)) {
+                showValidation('phoneMsg', 'Please enter a valid phone number');
+                isValid = false;
+            }
+            if (!terms) {
+                alert('Please accept the Terms of Service and Privacy Policy');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

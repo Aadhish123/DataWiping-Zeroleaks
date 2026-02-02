@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - CRABEX | Cinematic Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            background: #1c2023;
+            color: #e2e8f0;
+        }
+
+        /* Navbar Styles from Landing Page */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(15, 17, 21, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 230, 216, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 230, 216, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 0 28px rgba(0, 230, 216, 0.4);
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #00e6d8;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 230, 216, 0.15);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-links a:hover::before {
+            left: 0;
+        }
+
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            color: #00e6d8;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, #00e6d8, #00b8b0) !important;
+            color: #1c2023 !important;
+            padding: 0.7rem 1.8rem !important;
+            box-shadow: 0 0 20px rgba(0, 230, 216, 0.25);
+            border: none;
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 30px rgba(0, 230, 216, 0.5);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .nav-ctalogout {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            color: white !important;
+            padding: 0.7rem 1.8rem !important;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-ctalogout:hover {
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1001;
+            width: auto;
+        }
+
+        .mobile-menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #00e6d8;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* --- Profile Dropdown Menu --- */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 1rem;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 230, 216, 0.15);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-trigger:hover {
+            background: rgba(0, 230, 216, 0.08);
+            border-color: #00e6d8;
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.15);
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #00e6d8;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .profile-arrow {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-dropdown:hover .profile-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-menu-content {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: #283538;
+            border: 1px solid rgba(0, 230, 216, 0.15);
+            border-radius: 10px;
+            box-shadow: 0 12px 50px rgba(0, 0, 0, 0.5);
+            min-width: 180px;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 2000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-dropdown:hover .profile-menu-content,
+        .profile-dropdown:focus-within .profile-menu-content {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .profile-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(0, 230, 216, 0.1);
+            color: #00e6d8;
+        }
+
+        .profile-menu-item.logout-item {
+            color: #ef4444;
+        }
+
+        .profile-menu-item.logout-item:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 3%;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 82px;
+                right: -100%;
+                width: 280px;
+                height: calc(100vh - 82px);
+                background: #252a2e;
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+                padding: 2rem 1.5rem;
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                border-left: 1px solid rgba(102, 126, 234, 0.3);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                padding: 1rem 1.5rem;
+                font-size: 1.1rem;
+                text-align: center;
+                width: 100%;
+            }
+
+            .brand {
+                font-size: 1.5rem;
+            }
+
+            .logo {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* Animated Particle Background - Match Application Theme */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            background: #1c2023;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 20s infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0) scale(1);
+            }
+
+            25% {
+                transform: translateY(-100px) translateX(50px) scale(1.1);
+            }
+
+            50% {
+                transform: translateY(-200px) translateX(-50px) scale(0.9);
+            }
+
+            75% {
+                transform: translateY(-100px) translateX(100px) scale(1.05);
+            }
+        }
+
+        /* Gradient Orbs - Match Landing Page */
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: orbFloat 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 230, 216, 0.15) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 230, 216, 0.1) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(0, 230, 216, 0.12) 0%, transparent 70%);
+            top: 50%;
+            right: -100px;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+        }
+
+        /* ============= HERO SLIDER ============= */
+        .hero-slider-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-slides {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+        }
+
+        .hero-slide-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.85);
+            animation: zoomPan 20s ease-in-out infinite;
+        }
+
+        @keyframes zoomPan {
+
+            0%,
+            100% {
+                transform: scale(1) translateX(0);
+            }
+
+            50% {
+                transform: scale(1.05) translateX(20px);
+            }
+        }
+
+        .hero-slide-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(28, 32, 35, 0.5) 0%, rgba(28, 32, 35, 0.7) 100%);
+        }
+
+        .hero-slide-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 8rem 5%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hero-slide-content>* {
+            pointer-events: auto;
+        }
+
+        .hero-slide-badge {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: rgba(0, 230, 216, 0.2);
+            border: 1px solid #00e6d8;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #00e6d8;
+            margin-bottom: 1rem;
+            animation: slideInLeft 0.6s ease-out;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-slide-title {
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+            animation: slideInLeft 0.8s ease-out 0.1s both;
+            color: #ffffff;
+            text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .hero-slide-desc {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            max-width: 600px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2rem;
+            animation: slideInLeft 1s ease-out 0.2s both;
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .hero-slide-cta {
+            display: inline-flex;
+            gap: 1rem;
+            animation: slideInLeft 1.2s ease-out 0.3s both;
+        }
+
+        .btn {
+            padding: 0.9rem 2.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #00e6d8;
+            color: #1c2023;
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 230, 216, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============= CAROUSEL CONTROLS ============= */
+        .carousel-controls {
+            position: fixed;
+            bottom: 40px;
+            right: 240px;
+            display: flex;
+            gap: 1rem;
+            z-index: 2000;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .carousel-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #00e6d8;
+            background: rgba(0, 230, 216, 0.15);
+            color: #00e6d8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 230, 216, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* ============= CARD CAROUSEL ============= */
+        .carousel-container {
+            position: fixed;
+            bottom: 130px;
+            right: 0;
+            width: 800px;
+            height: 200px;
+            z-index: 1999;
+            mask-image: linear-gradient(to right, transparent, black 15%);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 15%);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @media (max-width: 1024px) {
+            .carousel-container {
+                width: 600px;
+                height: 180px;
+                bottom: 120px;
+                right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .carousel-container {
+                position: relative;
+                bottom: 0;
+                right: 0;
+                width: 100%;
+                height: 160px;
+                padding: 20px 5%;
+                margin-top: 4rem;
+            }
+
+            .carousel-controls {
+                bottom: 20px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                gap: 1rem;
+                animation: none;
+            }
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .carousel-track {
+            position: absolute;
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            height: 100%;
+            animation: scroll 60s linear infinite;
+        }
+
+        .carousel-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .carousel-card {
+            position: relative;
+            min-width: 200px;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(0, 230, 216, 0.2);
+            background: rgba(0, 230, 216, 0.05);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .carousel-card:hover {
+            transform: scale(1.08) translateY(-10px);
+            border-color: #00e6d8;
+            box-shadow: 0 15px 40px rgba(0, 230, 216, 0.3);
+        }
+
+        .carousel-card.active {
+            border-color: #00e6d8;
+            box-shadow: 0 0 30px rgba(0, 230, 216, 0.5);
+            transform: scale(1.1);
+        }
+
+        .carousel-card-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+
+        .carousel-card.active .carousel-card-img,
+        .carousel-card:hover .carousel-card-img {
+            filter: brightness(1.5);
+        }
+
+        .carousel-card.inactive .carousel-card-img {
+            filter: brightness(0.9) blur(2px);
+        }
+
+        .carousel-card-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(28, 32, 35, 0.6) 0%, rgba(28, 32, 35, 0.85) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.2rem;
+        }
+
+        .carousel-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .carousel-card-text {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .carousel-track::after {
+            content: '';
+        }
+
+        /* ============= INDICATOR DOTS ============= */
+        .slider-indicators {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.8rem;
+            z-index: 2000;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 230, 216, 0.3);
+            border: 2px solid rgba(0, 230, 216, 0.5);
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .indicator-dot.active {
+            background: #00e6d8;
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(0, 230, 216, 0.6);
+        }
+
+        .indicator-dot:hover {
+            background: rgba(0, 230, 216, 0.6);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar from Landing Page -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='crabEX.jpg') }}" alt="CRABEX Logo" class="logo">
+                <a href="/" class="brand">CRABEX</a>
+            </div>
+
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('wipe_tool') }}">Wipe Tool</a>
+                <a href="{{ url_for('history') }}">History</a>
+                <a href="{{ url_for('help_page') }}">Help</a>
+                {% if session.get('user_id') %}
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <div class="profile-trigger">
+                        <img src="https://ui-avatars.com/api/?name={{ session.get('username', 'User') }}&background=00e6d8&color=1c2023&bold=true"
+                            alt="User" class="profile-avatar">
+                        <span class="profile-name">{{ session.get('username', 'User') }}</span>
+                        <span class="profile-arrow">▼</span>
+                    </div>
+                    <div class="profile-menu-content">
+                        <a href="{{ url_for('logout') }}" class="profile-menu-item logout-item">
+                            <span>🚪</span> Logout
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('signup') }}" class="nav-cta">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Animated Particle Background -->
+    <div class="particles-container">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- HERO SLIDER -->
+    <div class="hero-slider-container">
+        <div class="hero-slides" id="heroSlides">
+            <!-- Slide 1: Reduces Carbon Footprint -->
+            <div class="hero-slide active" data-slide="0">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_1.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">🌱 Environmental Impact</div>
+                    <h1 class="hero-slide-title">Reduces Carbon Footprint</h1>
+                    <p class="hero-slide-desc">Enables safe device refurbishment and resale, extending hardware
+                        lifecycles and reducing the need for new manufacturing.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">Learn More</button>
+                        <button class="btn btn-secondary">Explore Impact</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Minimizes E-Waste -->
+            <div class="hero-slide" data-slide="1">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_2.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">♻️ Waste Prevention</div>
+                    <h1 class="hero-slide-title">Minimizes E-Waste</h1>
+                    <p class="hero-slide-desc">Secure wiping allows devices to be safely donated or recycled, preventing
+                        millions of devices from ending up in landfills.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">View Statistics</button>
+                        <button class="btn btn-secondary">Recycling Info</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Conserves Resources -->
+            <div class="hero-slide" data-slide="2">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_3.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">🏭 Resource Conservation</div>
+                    <h1 class="hero-slide-title">Conserves Resources</h1>
+                    <p class="hero-slide-desc">By enabling device reuse, we reduce demand for rare earth mining and raw
+                        material extraction needed for new electronics.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">Sustainability Report</button>
+                        <button class="btn btn-secondary">Mining Impact</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Water Resources -->
+            <div class="hero-slide" data-slide="3">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_4.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">💧 Water Conservation</div>
+                    <h1 class="hero-slide-title">Saves Water Resources</h1>
+                    <p class="hero-slide-desc">Electronic manufacturing is water-intensive. Device reuse through secure
+                        wiping saves billions of liters of water annually.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">Water Impact Data</button>
+                        <button class="btn btn-secondary">Learn More</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Air Pollution -->
+            <div class="hero-slide" data-slide="4">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_5.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">💨 Air Quality</div>
+                    <h1 class="hero-slide-title">Reduces Air Pollution</h1>
+                    <p class="hero-slide-desc">Prevents toxic chemicals from improper e-waste disposal from
+                        contaminating air and soil in communities worldwide.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">Pollution Studies</button>
+                        <button class="btn btn-secondary">Health Impact</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Circular Economy -->
+            <div class="hero-slide" data-slide="5">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_1.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">🔄 Sustainability</div>
+                    <h1 class="hero-slide-title">Promotes Circular Economy</h1>
+                    <p class="hero-slide-desc">Creates a sustainable technology ecosystem where devices maintain value
+                        through multiple ownership cycles.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">Circular Model</button>
+                        <button class="btn btn-secondary">Business Impact</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Cross-Platform Support -->
+            <div class="hero-slide" data-slide="6">
+                <div class="hero-slide-bg"
+                    style="background-image: url('{{ url_for('static', filename='impact_images/impact_6.jpg') }}');">
+                </div>
+                <div class="hero-slide-overlay"></div>
+                <div class="hero-slide-content">
+                    <div class="hero-slide-badge">🌍 Universal Access</div>
+                    <h1 class="hero-slide-title">Cross-Platform Support</h1>
+                    <p class="hero-slide-desc">Experience seamless data wiping across Windows, Linux, and macOS. One
+                        application, identical features, maximum compatibility. Protect your data on any desktop
+                        platform.</p>
+                    <div class="hero-slide-cta">
+                        <button class="btn btn-primary">Download Now</button>
+                        <button class="btn btn-secondary">System Requirements</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAROUSEL CARDS -->
+    <div class="carousel-container">
+        <div class="carousel">
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Card 1: Carbon Footprint -->
+                <div class="carousel-card active" data-index="0">
+                    <img src="{{ url_for('static', filename='impact_images/impact_1.jpg') }}" alt="Carbon Footprint"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">🌱 Carbon Footprint</div>
+                        <div class="carousel-card-text">Enables safe device refurbishment and resale</div>
+                    </div>
+                </div>
+                <!-- Card 2: E-Waste -->
+                <div class="carousel-card inactive" data-index="1">
+                    <img src="{{ url_for('static', filename='impact_images/impact_2.jpg') }}" alt="E-Waste"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">♻️ Minimizes E-Waste</div>
+                        <div class="carousel-card-text">Safely donated or recycled, preventing landfills</div>
+                    </div>
+                </div>
+                <!-- Card 3: Conserves Resources -->
+                <div class="carousel-card inactive" data-index="2">
+                    <img src="{{ url_for('static', filename='impact_images/impact_3.jpg') }}" alt="Resources"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">🏭 Conserves Resources</div>
+                        <div class="carousel-card-text">Reduces demand for rare earth mining</div>
+                    </div>
+                </div>
+                <!-- Card 4: Water Resources -->
+                <div class="carousel-card inactive" data-index="3">
+                    <img src="{{ url_for('static', filename='impact_images/impact_4.jpg') }}" alt="Water"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">💧 Saves Water Resources</div>
+                        <div class="carousel-card-text">Saves billions of liters annually</div>
+                    </div>
+                </div>
+                <!-- Card 5: Air Pollution -->
+                <div class="carousel-card inactive" data-index="4">
+                    <img src="{{ url_for('static', filename='impact_images/impact_5.jpg') }}" alt="Air"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">💨 Reduces Air Pollution</div>
+                        <div class="carousel-card-text">Prevents toxic chemical contamination</div>
+                    </div>
+                </div>
+                <!-- Card 6: Circular Economy -->
+                <div class="carousel-card inactive" data-index="5">
+                    <img src="{{ url_for('static', filename='impact_images/impact_1.jpg') }}" alt="Circular"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">🔄 Promotes Circular Economy</div>
+                        <div class="carousel-card-text">Sustainable technology ecosystem</div>
+                    </div>
+                </div>
+                <!-- Card 7: Cross-Platform -->
+                <div class="carousel-card inactive" data-index="6">
+                    <img src="{{ url_for('static', filename='impact_images/impact_6.jpg') }}" alt="Cross-Platform"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">🌍 Cross-Platform</div>
+                        <div class="carousel-card-text">Seamless Windows, Linux, macOS experience</div>
+                    </div>
+                </div>
+                <!-- Duplicate cards for infinite scroll effect (partial) -->
+                <div class="carousel-card inactive" data-index="0">
+                    <img src="{{ url_for('static', filename='impact_images/impact_1.jpg') }}" alt="Carbon Footprint"
+                        class="carousel-card-img">
+                    <div class="carousel-card-overlay">
+                        <div class="carousel-card-title">🌱 Carbon Footprint</div>
+                        <div class="carousel-card-text">Enables safe device refurbishment and resale</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAROUSEL CONTROLS -->
+    <div class="carousel-controls">
+        <button class="carousel-btn" id="prevBtn" aria-label="Previous slide">❮</button>
+        <button class="carousel-btn" id="nextBtn" aria-label="Next slide">❯</button>
+    </div>
+
+    <!-- INDICATOR DOTS -->
+    <div class="slider-indicators" id="sliderIndicators">
+        <div class="indicator-dot active" data-slide="0"></div>
+        <div class="indicator-dot" data-slide="1"></div>
+        <div class="indicator-dot" data-slide="2"></div>
+        <div class="indicator-dot" data-slide="3"></div>
+        <div class="indicator-dot" data-slide="4"></div>
+        <div class="indicator-dot" data-slide="5"></div>
+        <div class="indicator-dot" data-slide="6"></div>
+    </div>
+
+    <!-- Global Chatbot -->
+    {% include 'includes/chatbot.html' %}
+
+    <script>
+        // ============= CAROUSEL STATE =============
+        let currentSlide = 0;
+        const totalSlides = 7;
+        const slides = document.querySelectorAll('.hero-slide');
+        const indicators = document.querySelectorAll('.indicator-dot');
+        const carouselCards = document.querySelectorAll('.carousel-card');
+        const carouselTrack = document.getElementById('carouselTrack');
+
+        // ============= AUTO-PLAY CAROUSEL =============
+        let autoPlayInterval;
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(() => {
+                nextSlide();
+            }, 8000); // Change slide every 8 seconds
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+        }
+
+        function resetAutoPlay() {
+            stopAutoPlay();
+            startAutoPlay();
+        }
+
+        // ============= HERO SLIDER FUNCTIONS =============
+        function updateSlide(index) {
+            // Update current slide
+            slides.forEach((slide, i) => {
+                const isActive = i === index;
+                slide.classList.toggle('active', isActive);
+            });
+
+            // Update indicators
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+
+            // Update carousel cards
+            carouselCards.forEach((card) => {
+                const cardIndex = parseInt(card.dataset.index);
+                if (cardIndex === index) {
+                    card.classList.remove('inactive');
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                    card.classList.add('inactive');
+                }
+            });
+
+            currentSlide = index;
+        }
+
+        function nextSlide() {
+            const nextIndex = (currentSlide + 1) % totalSlides;
+            updateSlide(nextIndex);
+        }
+
+        function prevSlide() {
+            const prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlide(prevIndex);
+        }
+
+        // ============= EVENT LISTENERS =============
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            nextSlide();
+            resetAutoPlay();
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            prevSlide();
+            resetAutoPlay();
+        });
+
+        // Indicator dots click
+        indicators.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                updateSlide(index);
+                resetAutoPlay();
+            });
+        });
+
+        // Carousel card click to update hero
+        carouselCards.forEach((card) => {
+            card.addEventListener('click', () => {
+                const dataIndex = parseInt(card.dataset.index);
+                // Handle duplicate cards potentially having same data-index
+                if (!isNaN(dataIndex)) {
+                    updateSlide(dataIndex);
+                    resetAutoPlay();
+                }
+            });
+        });
+
+        // Pause on hover
+        const carousel = document.querySelector('.carousel-container');
+        if (carousel) {
+            carousel.addEventListener('mouseenter', stopAutoPlay);
+            carousel.addEventListener('mouseleave', resetAutoPlay);
+        }
+
+        // Pause hero on hover
+        const heroContainer = document.querySelector('.hero-slider-container');
+        if (heroContainer) {
+            heroContainer.addEventListener('mouseenter', stopAutoPlay);
+            heroContainer.addEventListener('mouseleave', resetAutoPlay);
+        }
+
+        // ============= INITIALIZE =============
+        updateSlide(0);
+        startAutoPlay();
+
+        // ============= KEYBOARD NAVIGATION =============
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+            resetAutoPlay();
+        });
+
+        // ============= SCROLL EFFECT - HIDE SCROLLBAR BUT ALLOW CONTENT =============
+        document.body.style.overflowX = 'hidden';
+
+        // Mobile Menu Toggle (from Landing Page)
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function () {
+                this.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!event.target.closest('.navbar')) {
+                    mobileMenuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
+            });
+
+            // Close menu when clicking a link
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function () {
+                    mobileMenuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                });
+            });
+        }
+
+        // Generate floating particles (from Landing Page)
+        function createParticles() {
+            const container = document.querySelector('.particles-container');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 4 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+
+                const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+    </script>
+
+    <!-- Chatbot Script from Landing Page -->
+    <script>
+        // Chatbot functionality
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotWindow = document.getElementById('chatbotWindow');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
+
+        if (chatbotToggle && chatbotWindow) {
+            chatbotToggle.addEventListener('click', () => {
+                chatbotWindow.classList.add('active');
+            });
+
+            chatbotClose.addEventListener('click', () => {
+                chatbotWindow.classList.remove('active');
+            });
+
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${isUser ? 'user' : ''}`;
+
+                messageDiv.innerHTML = `
+                <div class="message-avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
+                    ${isUser ? '👤' : '<img src="/static/realistic_earth.png" class="mini-earth">'}
+                </div>
+                <div class="message-content">${content}</div>
+            `;
+
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'chat-message typing-message';
+                typingDiv.innerHTML = `
+                <div class="message-avatar bot-avatar"><img src="/static/realistic_earth.png" class="mini-earth"></div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+                chatbotMessages.appendChild(typingDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                return typingDiv;
+            }
+
+            async function sendMessage() {
+                const message = chatbotInput.value.trim();
+                if (!message) return;
+
+                addMessage(message, true);
+                chatbotInput.value = '';
+                chatbotSend.disabled = true;
+
+                const typingIndicator = showTypingIndicator();
+
+                try {
+                    // Call the Gemini API backend
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: message })
+                    });
+
+                    const data = await response.json();
+                    typingIndicator.remove();
+
+                    if (data.response) {
+                        addMessage(data.response);
+                    } else {
+                        addMessage("I encountered a temporal anomaly. Please try again.");
+                    }
+                } catch (error) {
+                    console.error("Chat Error:", error);
+                    typingIndicator.remove();
+                    addMessage("Connection to Gemini Core failed. Please check your network.");
+                }
+
+                chatbotSend.disabled = false;
+                chatbotInput.focus();
+            }
+
+            chatbotSend.addEventListener('click', sendMessage);
+            chatbotInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - ZeroLeaks{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h1 class="mb-4"><i class="fas fa-shield-alt"></i> Security Monitoring Dashboard</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>Total Users</h5>
+                    <h2 id="total-users">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Active Today</h5>
+                    <h2 id="active-today">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5>Suspicious Flags</h5>
+                    <h2 id="suspicious-count">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5>Wipes Today</h5>
+                    <h2 id="wipes-today">-</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Suspicious Activity -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Suspicious Activity (Unresolved)</h4>
+        </div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-hover" id="suspicious-table">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Activity Type</th>
+                        <th>Severity</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
+                        <th>Detected At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="suspicious-tbody">
+                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Recent Audit Logs -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0"><i class="fas fa-clipboard-list"></i> Recent Audit Logs (Last 100)</h4>
+        </div>
+        <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+            <table class="table table-sm table-striped" id="audit-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Operation</th>
+                        <th>Device Path</th>
+                        <th>Method</th>
+                        <th>Purpose</th>
+                        <th>IP Address</th>
+                        <th>Location</th>
+                        <th>Timestamp</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-tbody">
+                    <tr><td colspan="10" class="text-center">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadDashboardData() {
+    try {
+        const response = await fetch('/admin/audit-logs');
+        const data = await response.json();
+        
+        // Load suspicious activity
+        const suspiciousTbody = document.getElementById('suspicious-tbody');
+        suspiciousTbody.innerHTML = '';
+        
+        if (data.suspicious_activity && data.suspicious_activity.length > 0) {
+            document.getElementById('suspicious-count').textContent = data.suspicious_activity.length;
+            
+            data.suspicious_activity.forEach(item => {
+                const row = document.createElement('tr');
+                const severityClass = item.severity === 'high' ? 'text-danger' : 
+                                     item.severity === 'medium' ? 'text-warning' : 'text-info';
+                row.innerHTML = `
+                    <td>${item.user_id}</td>
+                    <td><code>${item.activity_type}</code></td>
+                    <td class="${severityClass}"><strong>${item.severity.toUpperCase()}</strong></td>
+                    <td>${item.description}</td>
+                    <td>${item.ip_address || 'N/A'}</td>
+                    <td>${new Date(item.detected_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewUser(${item.user_id})">View User</button>
+                    </td>
+                `;
+                suspiciousTbody.appendChild(row);
+            });
+        } else {
+            suspiciousTbody.innerHTML = '<tr><td colspan="7" class="text-center text-success">No suspicious activity detected</td></tr>';
+            document.getElementById('suspicious-count').textContent = '0';
+        }
+        
+        // Load audit logs
+        const auditTbody = document.getElementById('audit-tbody');
+        auditTbody.innerHTML = '';
+        
+        if (data.audit_logs && data.audit_logs.length > 0) {
+            data.audit_logs.forEach(log => {
+                const row = document.createElement('tr');
+                const statusClass = log.success ? 'text-success' : 'text-danger';
+                const statusText = log.success ? '✓ Success' : '✗ Failed';
+                
+                row.innerHTML = `
+                    <td>${log.id}</td>
+                    <td><strong>${log.username}</strong></td>
+                    <td><span class="badge bg-secondary">${log.operation_type}</span></td>
+                    <td><code>${log.device_path || 'N/A'}</code></td>
+                    <td>${log.wipe_method || 'N/A'}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${log.purpose}">${log.purpose}</td>
+                    <td>${log.ip_address}</td>
+                    <td>${log.geolocation || 'N/A'}</td>
+                    <td>${new Date(log.timestamp).toLocaleString()}</td>
+                    <td class="${statusClass}">${statusText}</td>
+                `;
+                auditTbody.appendChild(row);
+            });
+            
+            document.getElementById('wipes-today').textContent = data.audit_logs.filter(l => 
+                new Date(l.timestamp).toDateString() === new Date().toDateString()
+            ).length;
+        }
+        
+    } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+        alert('Failed to load dashboard data: ' + error.message);
+    }
+}
+
+function viewUser(userId) {
+    alert(`View user details for ID: ${userId}\n(This would open a detailed user view)`);
+}
+
+// Load data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    
+    // Refresh every 30 seconds
+    setInterval(loadDashboardData, 30000);
+});
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        font-weight: bold;
+    }
+    
+    table {
+        font-size: 0.9rem;
+    }
+    
+    tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    code {
+        background-color: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85em;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,469 @@
+{% extends 'base.html' %}
+
+{% block title %}Third-Party Certificate Verification - CRABEX{% endblock %}
+
+{% block content %}
+<style>
+    .verification-container {
+        max-width: 900px;
+        margin: 60px auto 40px;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .verification-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .verification-header h1 {
+        color: #1e293b;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+    
+    .verification-header p {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+    
+    .verification-form {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        color: white;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    
+    .verify-btn {
+        width: 100%;
+        padding: 18px;
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .verify-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .verify-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .result-box {
+        margin-top: 30px;
+        padding: 30px;
+        border-radius: 15px;
+        display: none;
+    }
+    
+    .result-box.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        display: block;
+    }
+    
+    .result-box.error {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        display: block;
+    }
+    
+    .result-icon {
+        font-size: 4rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .result-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .result-message {
+        font-size: 1.1rem;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    
+    .certificate-details {
+        background: rgba(255,255,255,0.2);
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        opacity: 0.9;
+    }
+    
+    .detail-value {
+        font-family: 'Courier New', monospace;
+        font-weight: 500;
+    }
+    
+    .info-section {
+        background: #f8fafc;
+        padding: 30px;
+        border-radius: 15px;
+        margin-top: 30px;
+    }
+    
+    .info-section h3 {
+        color: #1e293b;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    
+    .info-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .info-list li {
+        padding: 12px 0;
+        padding-left: 30px;
+        position: relative;
+        color: #475569;
+        line-height: 1.6;
+    }
+    
+    .info-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .spinner {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .spinner.active {
+        display: block;
+    }
+</style>
+
+<div class="verification-container">
+    <div class="verification-header">
+        <h1>🔍 Third-Party Certificate Verification</h1>
+        <p>Independently verify the authenticity of any data wiping certificate</p>
+    </div>
+    
+    <div class="verification-form">
+        <form id="verificationForm">
+            <div class="form-group">
+                <label for="verification-code">🔐 Enter Verification Code</label>
+                <input 
+                    type="text" 
+                    id="verification-code" 
+                    name="verification_code"
+                    placeholder="VERIFY-XXXX-XXXX-XXXX"
+                    pattern="VERIFY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}"
+                    maxlength="23"
+                    required
+                >
+                <small style="color: rgba(255,255,255,0.8); margin-top: 8px; display: block;">
+                    Format: VERIFY-XXXX-XXXX-XXXX (found on your certificate)
+                </small>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="certificate-id">📄 Or Enter Certificate ID</label>
+                <input 
+                    type="text" 
+                    id="certificate-id" 
+                    name="certificate_id"
+                    placeholder="wipe_certificate_xxxxxxxxxxxxx"
+                >
+            </div>
+            
+            <div class="spinner" id="spinner">
+                <div style="color: white; font-size: 1.2rem;">🔄 Verifying certificate...</div>
+            </div>
+            
+            <button type="submit" class="verify-btn" id="verify-btn">
+                🔍 Verify Certificate
+            </button>
+        </form>
+    </div>
+    
+    <div id="result-box" class="result-box"></div>
+    
+    <div class="info-section">
+        <h3>📋 How Third-Party Verification Works</h3>
+        <ul class="info-list">
+            <li><strong>Independent Verification:</strong> Any person or organization can verify certificates without login</li>
+            <li><strong>Cryptographic Security:</strong> Each certificate has a unique verification code and hash</li>
+            <li><strong>Tamper-Proof:</strong> Any modification to the certificate will fail verification</li>
+            <li><strong>Audit Trail:</strong> All verification attempts are logged for transparency</li>
+            <li><strong>Real-Time:</strong> Instant verification against our secure database</li>
+            <li><strong>Compliance:</strong> Meets legal and regulatory requirements for data destruction proof</li>
+        </ul>
+        
+        <h3 style="margin-top: 30px;">🎯 Who Can Use This?</h3>
+        <ul class="info-list">
+            <li><strong>Auditors:</strong> Verify data destruction compliance during audits</li>
+            <li><strong>Legal Teams:</strong> Authenticate certificates for legal proceedings</li>
+            <li><strong>Compliance Officers:</strong> Verify adherence to data protection regulations</li>
+            <li><strong>Clients:</strong> Confirm that their data was properly destroyed</li>
+            <li><strong>Insurance Companies:</strong> Validate certificates for claims</li>
+            <li><strong>Regulatory Bodies:</strong> Inspect and verify data destruction records</li>
+        </ul>
+    </div>
+    
+    <div class="stats-grid" id="stats-section">
+        <!-- Stats will be loaded here -->
+    </div>
+</div>
+
+<script>
+document.getElementById('verificationForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const verifyBtn = document.getElementById('verify-btn');
+    const spinner = document.getElementById('spinner');
+    const resultBox = document.getElementById('result-box');
+    const verCode = document.getElementById('verification-code').value.trim().toUpperCase();
+    const certId = document.getElementById('certificate-id').value.trim();
+    
+    if (!verCode && !certId) {
+        alert('Please enter either a verification code or certificate ID');
+        return;
+    }
+    
+    // Show loading
+    verifyBtn.disabled = true;
+    spinner.classList.add('active');
+    resultBox.style.display = 'none';
+    
+    try {
+        const params = new URLSearchParams();
+        if (verCode) params.append('code', verCode);
+        if (certId) params.append('id', certId);
+        
+        const response = await fetch(`/api/verify-certificate?${params}`, {
+            method: 'GET'
+        });
+        
+        const data = await response.json();
+        
+        // Hide loading
+        spinner.classList.remove('active');
+        verifyBtn.disabled = false;
+        
+        // Show result
+        displayResult(data);
+        
+    } catch (error) {
+        spinner.classList.remove('active');
+        verifyBtn.disabled = false;
+        displayResult({
+            valid: false,
+            message: 'Network error. Please try again.',
+            status: 'ERROR'
+        });
+    }
+});
+
+function displayResult(data) {
+    const resultBox = document.getElementById('result-box');
+    resultBox.className = 'result-box ' + (data.valid ? 'success' : 'error');
+    
+    let html = '';
+    
+    if (data.valid) {
+        html = `
+            <div class="result-icon">✅</div>
+            <div class="result-title">Certificate Verified Successfully</div>
+            <div class="result-message">${data.message}</div>
+        `;
+        
+        if (data.certificate_details) {
+            const details = data.certificate_details;
+            html += `
+                <div class="certificate-details">
+                    <h4 style="margin-bottom: 15px; font-size: 1.3rem;">📋 Certificate Details</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Certificate ID:</span>
+                        <span class="detail-value">${details.certificate_id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Issue Date:</span>
+                        <span class="detail-value">${new Date(details.issue_date).toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Technician:</span>
+                        <span class="detail-value">${details.technician}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Asset Path:</span>
+                        <span class="detail-value">${details.asset_path}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Wipe Method:</span>
+                        <span class="detail-value">${details.wipe_method}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Verification Count:</span>
+                        <span class="detail-value">${details.verification_count} times</span>
+                    </div>
+                </div>
+            `;
+            
+            if (data.verification_code) {
+                html += `
+                    <div style="margin-top: 20px; text-align: center;">
+                        <strong>Verification Code:</strong> ${data.verification_code}
+                    </div>
+                `;
+            }
+        }
+    } else {
+        html = `
+            <div class="result-icon">❌</div>
+            <div class="result-title">Verification Failed</div>
+            <div class="result-message">${data.message}</div>
+            <div style="margin-top: 20px; text-align: center; opacity: 0.9;">
+                <strong>Status:</strong> ${data.status}
+            </div>
+        `;
+    }
+    
+    resultBox.innerHTML = html;
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Load statistics
+async function loadStats() {
+    try {
+        const response = await fetch('/api/verification-stats');
+        const data = await response.json();
+        
+        const statsSection = document.getElementById('stats-section');
+        statsSection.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${data.total_certificates || 0}</div>
+                <div class="stat-label">Total Certificates</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${data.total_verifications || 0}</div>
+                <div class="stat-label">Total Verifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${data.recent_verifications_30d || 0}</div>
+                <div class="stat-label">Last 30 Days</div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+// Load stats on page load
+loadStats();
+
+// Auto-format verification code
+document.getElementById('verification-code').addEventListener('input', function(e) {
+    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    
+    if (!value.startsWith('VERIFY')) {
+        if (value.length > 0) {
+            value = 'VERIFY' + value;
+        }
+    }
+    
+    // Format with dashes
+    let formatted = value.substring(0, 6); // VERIFY
+    if (value.length > 6) formatted += '-' + value.substring(6, 10);
+    if (value.length > 10) formatted += '-' + value.substring(10, 14);
+    if (value.length > 14) formatted += '-' + value.substring(14, 18);
+    
+    e.target.value = formatted;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,531 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Assistant - CRABEX{% endblock %}
+
+{% block content %}
+<style>
+    .chat-container {
+        max-width: 900px;
+        margin: 40px auto;
+        height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+        background: #252a2e;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        border: 1px solid rgba(0,230,216,0.12);
+        overflow: hidden;
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #00e6d8 0%, #00b8b0 100%);
+        padding: 25px 30px;
+        color: #1c2023;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .chat-header-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(0,0,0,0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: #00e6d8;
+    }
+    
+    .chat-header-text h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .chat-header-text p {
+        margin: 5px 0 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px;
+        background: #1c2023;
+        scroll-behavior: smooth;
+    }
+    
+    .message {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 12px;
+        animation: messageSlide 0.3s ease-out;
+    }
+    
+    @keyframes messageSlide {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .message.user .message-avatar {
+        background: linear-gradient(135deg, #00e6d8, #00b8b0);
+        color: #1c2023;
+    }
+    
+    .message.bot .message-avatar {
+        background: linear-gradient(135deg, #283538, #252a2e);
+        color: #00e6d8;
+    }
+    
+    .message-content {
+        flex: 1;
+        max-width: 75%;
+    }
+    
+    .message-bubble {
+        padding: 15px 20px;
+        border-radius: 18px;
+        line-height: 1.6;
+        word-wrap: break-word;
+    }
+    
+    .message.user .message-bubble {
+        background: linear-gradient(135deg, #00e6d8, #00b8b0);
+        color: #1c2023;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message.bot .message-bubble {
+        background: #283538;
+        color: #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        border-bottom-left-radius: 4px;
+        white-space: pre-line;
+        border: 1px solid rgba(0,230,216,0.06);
+    }
+    
+    .message-time {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 5px;
+        padding: 0 5px;
+    }
+    
+    .typing-indicator {
+        display: none;
+        padding: 15px 20px;
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        width: fit-content;
+    }
+    
+    .typing-indicator.active {
+        display: flex;
+        gap: 6px;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00e6d8;
+        animation: typingDot 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typingDot {
+        0%, 60%, 100% {
+            transform: translateY(0);
+            opacity: 0.7;
+        }
+        30% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+    
+    .suggestions {
+        padding: 15px 30px;
+        background: #283538;
+        border-top: 1px solid rgba(0,230,216,0.06);
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        overflow-x: auto;
+    }
+    
+    .suggestion-chip {
+        padding: 8px 16px;
+        background: #1c2023;
+        border: 1px solid rgba(0,230,216,0.06);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        color: #e2e8f0;
+    }
+    
+    .suggestion-chip:hover {
+        background: linear-gradient(135deg, #00e6d8, #00b8b0);
+        color: #1c2023;
+        border-color: rgba(0,230,216,0.18);
+        transform: translateY(-2px);
+    }
+    
+    .chat-input-container {
+        padding: 20px 30px;
+        background: #252a2e;
+        border-top: 1px solid rgba(0,230,216,0.06);
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .chat-input {
+        flex: 1;
+        padding: 15px 20px;
+        border: 2px solid rgba(0,230,216,0.06);
+        border-radius: 25px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s;
+        background: #1c2023;
+        color: #e2e8f0;
+    }
+    
+    .chat-input:focus {
+        border-color: #00e6d8;
+    }
+    
+    .chat-send-btn {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #00e6d8, #00b8b0);
+        color: #1c2023;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        flex-shrink: 0;
+        box-shadow: 0 6px 18px rgba(0,230,216,0.25);
+    }
+    
+    .chat-send-btn:hover:not(:disabled) {
+        transform: scale(1.1);
+        box-shadow: 0 8px 28px rgba(0,230,216,0.35);
+    }
+    
+    .chat-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .welcome-message {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+    }
+    
+    .welcome-message h3 {
+        color: #1e293b;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+    
+    .welcome-message p {
+        margin-bottom: 10px;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 30px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .quick-action-card {
+        padding: 20px;
+        background: #283538;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        border: 1px solid rgba(0,230,216,0.06);
+    }
+    
+    .quick-action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,230,216,0.15);
+        border-color: rgba(0,230,216,0.18);
+    }
+    
+    .quick-action-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .quick-action-title {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+    
+    .quick-action-desc {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+    
+    /* Scrollbar styling */
+    .chat-messages::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-track {
+        background: #1c2023;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: #00e6d8;
+        border-radius: 4px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: #00f5e9;
+    }
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="chat-header-icon">🤖</div>
+        <div class="chat-header-text">
+            <h2>CRABEX AI Assistant</h2>
+            <p>Ask me anything about data wiping, security, and compliance</p>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="welcome-message">
+            <h3>👋 Welcome to CRABEX AI Assistant!</h3>
+            <p>I'm here to help you with questions about:</p>
+            
+            <div class="quick-actions">
+                <div class="quick-action-card" onclick="sendQuickMessage('How secure is your data wiping?')">
+                    <div class="quick-action-icon">🔒</div>
+                    <div class="quick-action-title">Security</div>
+                    <div class="quick-action-desc">Encryption & safety</div>
+                </div>
+                <div class="quick-action-card" onclick="sendQuickMessage('What wiping methods do you support?')">
+                    <div class="quick-action-icon">⚙️</div>
+                    <div class="quick-action-title">Methods</div>
+                    <div class="quick-action-desc">Techniques & algorithms</div>
+                </div>
+                <div class="quick-action-card" onclick="sendQuickMessage('Do you have compliance certifications?')">
+                    <div class="quick-action-icon">✅</div>
+                    <div class="quick-action-title">Compliance</div>
+                    <div class="quick-action-desc">Standards & certs</div>
+                </div>
+                <div class="quick-action-card" onclick="sendQuickMessage('How can I verify certificates?')">
+                    <div class="quick-action-icon">🔍</div>
+                    <div class="quick-action-title">Verification</div>
+                    <div class="quick-action-desc">Third-party auth</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="suggestions" id="suggestions"></div>
+    
+    <div class="chat-input-container">
+        <input 
+            type="text" 
+            class="chat-input" 
+            id="chatInput" 
+            placeholder="Type your question here..."
+            onkeypress="handleKeyPress(event)"
+        >
+        <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+            ➤
+        </button>
+    </div>
+</div>
+
+<script>
+let messageCount = 0;
+
+// Load suggestions on page load
+async function loadSuggestions() {
+    try {
+        const response = await fetch('/api/chatbot/suggestions');
+        const data = await response.json();
+        
+        const suggestionsContainer = document.getElementById('suggestions');
+        suggestionsContainer.innerHTML = data.suggestions
+            .slice(0, 5)
+            .map(suggestion => `
+                <div class="suggestion-chip" onclick="sendQuickMessage('${suggestion}')">
+                    ${suggestion}
+                </div>
+            `).join('');
+    } catch (error) {
+        console.error('Error loading suggestions:', error);
+    }
+}
+
+function addMessage(text, isUser) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+    
+    // Remove welcome message after first interaction
+    if (welcomeMsg && messageCount > 0) {
+        welcomeMsg.remove();
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+    
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
+        <div class="message-content">
+            <div class="message-bubble">${text}</div>
+            <div class="message-time">${time}</div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    messageCount++;
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+            <div class="typing-indicator active">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Disable input
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+    input.disabled = true;
+    
+    // Add user message
+    addMessage(message, true);
+    input.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    try {
+        const response = await fetch('/api/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        // Hide typing indicator
+        hideTypingIndicator();
+        
+        // Add bot response
+        if (data.response) {
+            addMessage(data.response, false);
+        } else if (data.error) {
+            addMessage('Sorry, I encountered an error. Please try again.', false);
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage('Sorry, I\'m having trouble connecting. Please try again.', false);
+    } finally {
+        // Re-enable input
+        sendBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+    }
+}
+
+function sendQuickMessage(message) {
+    const input = document.getElementById('chatInput');
+    input.value = message;
+    sendMessage();
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+// Load suggestions on page load
+loadSuggestions();
+
+// Focus input on load
+document.getElementById('chatInput').focus();
+</script>
+{% endblock %}
